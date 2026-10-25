@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Tools | Shankar</title>
+
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --accent: #2878b5;
+            --background: #f4f6f9;
+            --surface: #ffffff;
+            --text: #263445;
+            --muted: #718096;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 28px 40px;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        /* ---------- Compact personal branding ---------- */
+        .profile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 0 0 18px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .profile-mark {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .profile h2 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--primary);
+            letter-spacing: -0.3px;
+        }
+
+        .profile p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .about-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .about-link:hover {
+            background: #eaf2f8;
+            border-color: #9bbbd6;
+        }
+
+        /* ---------- Main tools area (takes the space) ---------- */
+        main {
+            padding: 6px 0 4px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            color: var(--primary);
+            font-size: 28px;
+            letter-spacing: -0.7px;
+        }
+
+        .section-description {
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 13px;
+            max-width: 620px;
+        }
+
+        /* Vertical list — one tool per row, full width */
+        ul.tool-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        ul.tool-list li {
+            margin: 0;
+        }
+
+        ul.tool-list li a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            min-height: 66px;
+            padding: 20px 24px;
+            background: var(--surface);
+            color: var(--text);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 1.35;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        ul.tool-list li a::after {
+            content: "↗";
+            color: var(--accent);
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        ul.tool-list li a:hover,
+        ul.tool-list li a:focus-visible {
+            border-color: #9bbbd6;
+            box-shadow: 0 5px 14px rgba(30, 58, 95, 0.08);
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        /* ---------- Compact About section ---------- */
+        #about {
+            margin-top: 30px;
+            padding: 14px 16px;
+            background: #eaf0f6;
+            border-radius: 8px;
+            scroll-margin-top: 20px;
+        }
+
+        #about h2 {
+            margin: 0 0 6px;
+            font-size: 13px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+
+        #about p {
+            margin: 0 0 6px;
+            max-width: 720px;
+            color: #536477;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        #about p:last-child {
+            margin-bottom: 0;
+        }
+
+        #about .contact {
+            font-size: 12px;
+            color: #536477;
+        }
+
+        #about .contact a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #about .contact a:hover {
+            text-decoration: underline;
+        }
+
+        /* ---------- Footer ---------- */
+        footer {
+            margin-top: 22px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 600px) {
+            body {
+                padding: 18px 15px 32px;
+            }
+
+            .profile {
+                margin-bottom: 22px;
+            }
+
+            .profile-mark {
+                width: 40px;
+                height: 40px;
+            }
+
+            .profile h2 {
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            ul.tool-list li a {
+                min-height: 60px;
+                padding: 16px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Compact personal branding -->
+    <header class="profile">
+        <div class="profile-info">
+            <div class="profile-mark">SE</div>
+
+            <div>
+                <h2>Shankar</h2>
+                <p>Civil Engineer · Engineering Resources</p>
+            </div>
+        </div>
+
+        <a class="about-link" href="#about">About Me ↘</a>
+    </header>
+
+    <!-- Main engineering tools (primary area) -->
+    <main>
+        <h1>Engineering Tools</h1>
+
+        
+
+        <ul class="tool-list">
+            <!--
+                HOW TO ADD A NEW TOOL:
+                1. Copy one <li> block below.
+                2. Change the href to your HTML file path.
+                3. Change the text to your tool name.
+            -->
+
+            <li>
+                <a href="tools/RRM CALCULATOR.html">
+                    RRM Calculator
+                </a>
+            </li>
+
+            <li>
+                <a href="tools/SECTION 900-EARTHWORKS.html">
+                    Rate Analysis: Section 900 – Earthworks
+                </a>
+            </li>
+
+            <li>
+                <a href="tools/SECTION 1000-SUBGRADE.html">
+                    Rate Analysis: Section 1000 – Subgrade
+                </a>
+            </li>
+
+            <li>
+                <a href="tools/SECTION- 1200 SUBBASE, BASE, HARD SHOULDER AND GRAVEL WEARING COURSE.html">
+                    Rate Analysis: Section 1200 – Subbase, Base &amp; Gravel
+                </a>
+            </li>
+
+            <li>
+                <a href="tools/SECTION 2600-MASONRY FOR STRUCTURES.html">
+                    Rate Analysis: Section 2600 – Masonry
+                </a>
+            </li>
+
+            <!-- ADD YOUR NEW TOOLS BELOW THIS LINE -->
+
+        </ul>
+    </main>
+
+    <!-- Compact About Me section -->
+    <section id="about">
+        <h2>About Me</h2>
+
+        <p>
+            I am a Civil Engineer, technology enthusiast, and curious learner
+            passionate about bridging engineering theory with real-world
+            construction practice. I enjoy exploring innovative digital tools
+            to make engineering calculations and construction processes more
+            practical and efficient. Always eager to learn, collaborate, and
+            embrace new opportunities.
+        </p>
+
+        <p class="contact">
+            <strong>Contact:</strong>
+            <a href="mailto:shankarbhujel05@gmail.com">shankarbhujel05@gmail.com</a>
+            &nbsp;|&nbsp;
+            <a href="tel:+9779844524006">+977 9844524006</a>
+        </p>
+    </section>
+
+    <footer>
+        <span>Engineering Tools by Shankar</span>
+        <span>Built for practical engineering work</span>
+    </footer>
+
+</body>
+</html>
