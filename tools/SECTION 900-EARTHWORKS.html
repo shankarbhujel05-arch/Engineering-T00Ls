@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate Analysis — Section 900 Earth Works</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --border:#dde3ea; --text:#1f2937; --muted:#6b7280;
+    --accent:#0f6fbf; --accent-soft:#e8f2fb; --green:#0a7d4f; --green-soft:#e6f6ee;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--text); font-size:14px; line-height:1.45;
+  }
+  header{
+    background:linear-gradient(90deg,#0f6fbf,#1287d8); color:#fff;
+    padding:14px 22px; position:sticky; top:0; z-index:30;
+    display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+    box-shadow:0 2px 10px rgba(15,111,191,.25);
+  }
+  header h1{font-size:16px; margin:0; font-weight:650; letter-spacing:.2px}
+  header h1 small{display:block; font-weight:400; opacity:.85; font-size:11.5px; margin-top:2px}
+  .toolbar{display:flex; flex-wrap:wrap; gap:8px}
+  button{
+    font:inherit; font-size:13px; border:0; border-radius:8px; padding:8px 14px;
+    cursor:pointer; font-weight:600; transition:.15s; white-space:nowrap;
+  }
+  .btn-light{background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.35)}
+  .btn-light:hover{background:rgba(255,255,255,.28)}
+  .btn-solid{background:#fff; color:#0f6fbf}
+  .btn-solid:hover{background:#e8f2fb}
+  main{max-width:1180px; margin:0 auto; padding:20px 18px 60px}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:16px 18px; margin-bottom:18px; box-shadow:0 1px 3px rgba(16,24,40,.05);
+  }
+  .card h2{
+    font-size:13.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent);
+    margin:0 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); font-weight:700;
+  }
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px 16px}
+  .field{display:flex; flex-direction:column; gap:4px}
+  .field label{font-size:12px; color:var(--muted); font-weight:600}
+  .field .unit{font-weight:400; opacity:.8}
+  .field input{
+    font:inherit; padding:7px 10px; border:1px solid var(--border); border-radius:8px;
+    background:#fbfcfe; color:var(--text); width:100%; outline:none; font-variant-numeric:tabular-nums;
+  }
+  .field input:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(15,111,191,.12); background:#fff}
+
+  .group{margin-bottom:16px}
+  .group-head{
+    font-size:12.5px; font-weight:700; color:#374151; background:#eef3f9;
+    border-left:4px solid var(--accent); border-radius:6px; padding:7px 12px; margin-bottom:8px;
+    display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .group-head .ref{font-weight:500; color:var(--muted); font-size:11px}
+
+  .item-card{
+    border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden;
+    background:#fff; transition:.15s;
+  }
+  .item-card.on{border-color:#9fc9ec; box-shadow:0 0 0 3px rgba(15,111,191,.07)}
+  .item-head{
+    display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; user-select:none;
+  }
+  .item-head:hover{background:#f8fafd}
+  .item-head input[type=checkbox]{width:16px; height:16px; accent-color:var(--accent); cursor:pointer; flex:none}
+  .item-code{
+    font-weight:700; font-size:12px; color:var(--accent); background:var(--accent-soft);
+    padding:2px 8px; border-radius:6px; flex:none;
+  }
+  .item-desc{flex:1; font-weight:600; font-size:13.5px}
+  .badge{
+    font-size:11px; color:var(--muted); background:#f1f4f8; border:1px solid var(--border);
+    padding:2px 8px; border-radius:20px; flex:none;
+  }
+  .item-body{padding:0 14px 14px; border-top:1px dashed var(--border)}
+  .remarks{font-size:11.5px; color:#7a6520; background:#fffbe9; border:1px solid #f2e2a8;
+    padding:7px 11px; border-radius:8px; margin:12px 0 0}
+
+  .ra{margin-top:12px}
+  .ra-head{
+    display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    font-size:13px; margin-bottom:8px;
+  }
+  .ra-head .meta{color:var(--muted); font-size:11.5px}
+  table.ra-table{width:100%; border-collapse:collapse; font-size:12.8px}
+  table.ra-table th, table.ra-table td{padding:6px 9px; border-bottom:1px solid #eef1f5; vertical-align:top}
+  table.ra-table th{
+    text-align:left; background:#f7f9fc; font-weight:700; color:#4b5563; font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  table.ra-table td.num, table.ra-table th.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+  table.ra-table tr.sec td{
+    background:#f2f6fb; font-weight:700; color:var(--accent); font-size:11px;
+    text-transform:uppercase; letter-spacing:.05em; padding:5px 9px;
+  }
+  table.ra-table tr.sub td{background:#fafcfe; font-weight:700}
+  table.ra-table tr.total td{font-weight:700; border-top:2px solid #d7dee7; background:#f7f9fc}
+  table.ra-table tr.final td{
+    font-weight:800; font-size:14px; color:#fff; background:var(--green);
+  }
+  table.ra-table tr.final td:first-child{border-radius:6px 0 0 6px}
+  table.ra-table tr.final td:last-child{border-radius:0 6px 6px 0}
+
+  .qty-cell{padding:2px 4px 2px 2px !important}
+  .qty-input{
+    width:78px; font:inherit; font-size:12.5px; padding:3px 6px;
+    border:1px solid transparent; border-radius:6px;
+    background:transparent; color:inherit; text-align:right;
+    font-variant-numeric:tabular-nums; transition:.12s;
+  }
+  .qty-input:hover{border-color:var(--border); background:#fbfcfe}
+  .qty-input:focus{
+    outline:none; border-color:var(--accent); background:#fff;
+    box-shadow:0 0 0 3px rgba(15,111,191,.12);
+  }
+  .qty-input.is-overridden{
+    color:#b45309; font-weight:700; background:#fffbe9; border-color:#f2e2a8;
+  }
+  .qty-input.qty-error{border-color:#dc2626; background:#fef2f2}
+  .override-star{
+    background:none; border:0; padding:0 0 0 1px; margin:0;
+    color:#d97706; font-weight:800; font-size:14px; line-height:1;
+    cursor:pointer; vertical-align:middle; font-family:inherit;
+  }
+  .override-star:hover{color:#b45309; text-decoration:underline}
+  .hint{
+    font-size:12px; color:var(--muted);
+    background:var(--accent-soft); border-left:3px solid var(--accent);
+    padding:7px 12px; border-radius:6px; margin-bottom:14px;
+  }
+  .summary-table{width:100%; border-collapse:collapse; font-size:13px}
+  .summary-table th,.summary-table td{padding:9px 10px; border-bottom:1px solid var(--border); text-align:left}
+  .summary-table th{background:#f7f9fc; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:#4b5563}
+  .summary-table td.num,.summary-table th.num{text-align:right; font-variant-numeric:tabular-nums; font-weight:600}
+  .empty{color:var(--muted); font-size:13px; font-style:italic; padding:8px 0}
+
+  #printArea{display:none}
+
+  @media print{
+    @page{size:A4; margin:12mm}
+    body{background:#fff; font-size:11px}
+    header, main{display:none !important}
+    #printArea{display:block !important}
+    #printArea h1{font-size:16px; margin:0 0 4px}
+    .print-meta{font-size:10.5px; color:#555; margin-bottom:14px; border-bottom:1px solid #ccc; padding-bottom:8px}
+    .ra{page-break-inside:avoid; margin-bottom:16px}
+    table.ra-table{font-size:10.5px}
+    table.ra-table th, table.ra-table td{padding:3.5px 6px}
+    table.ra-table tr.final td{background:#e6f6ee !important; color:#0a4d33 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    table.ra-table tr.sec td{background:#eef3f9 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    table.ra-table th{background:#f4f6f9 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    .qty-input{border:none !important; background:transparent !important; padding:0 !important}
+    .override-star{color:#b45309 !important}
+  }
+  @media (max-width:640px){
+    .item-desc{font-size:12.5px}
+    main{padding:14px 10px 50px}
+    .qty-input{width:64px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Rate Analysis — Section 900: Earth Works
+    <small>Select items, enter your resource rates &amp; overheads, then export.</small>
+  </h1>
+  <div class="toolbar">
+    <button class="btn-light" id="btnSelectAll">Select All</button>
+    <button class="btn-light" id="btnClear">Clear</button>
+    <button class="btn-solid" id="btnCSV">⬇ CSV</button>
+    <button class="btn-solid" id="btnTXT">⬇ TXT</button>
+    <button class="btn-solid" id="btnPDF">⬇ PDF</button>
+  </div>
+</header>
+
+<main>
+  <!-- RATE INPUTS -->
+  <section class="card">
+    <h2>1 · Basic Rates &amp; Charges</h2>
+    <div class="grid" id="ratesGrid"></div>
+  </section>
+
+  <section class="card">
+    <h2>2 · Add-on Charges (applied on cost per unit)</h2>
+    <div class="grid" id="addonsGrid"></div>
+  </section>
+
+  <!-- ITEMS -->
+  <section class="card">
+    <h2>3 · Select Work Items</h2>
+    <div class="hint">
+      Tip: click any quantity to edit it. An overridden quantity is marked with
+      <button type="button" class="override-star" style="cursor:help" tabindex="-1">*</button>
+      — click the <strong>*</strong> to restore the standard value.
+    </div>
+    <div id="itemsList"></div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="card">
+    <h2>4 · Summary of Selected Items</h2>
+    <div id="summaryBox"></div>
+  </section>
+</main>
+
+<div id="printArea"></div>
+
+<script>
+/* ============================================================
+   MASTER DATA — Section 900 Earth Works
+   ============================================================ */
+const MAT_LABEL = {
+  gelatin:'Gelatin',
+  detonator:'Electric Detonators',
+  fuseWire:'Fuse wire',
+  chemical:'Chemical',
+  borrowMaterial:'Borrowpit material',
+  filterMedia:'Filter media',
+  sand:'Sand',
+  rockCredit:'Credit for excavated rock (@ 50%)'
+};
+const MAT_UNIT = {
+  gelatin:'kg',
+  detonator:'nos.',
+  fuseWire:'meter',
+  chemical:'kg',
+  borrowMaterial:'cum',
+  filterMedia:'cum',
+  sand:'cum',
+  rockCredit:'cum'
+};
+
+const RATE_DEFS = [
+  {key:'skilled',         label:'Skilled labour',       unit:'per day'},
+  {key:'unskilled',       label:'Unskilled labour',     unit:'per day'},
+  {key:'driller',         label:'Driller',              unit:'per day'},
+  {key:'blaster',         label:'Blaster',              unit:'per day'},
+  {key:'gelatin',         label:'Gelatin',              unit:'per kg'},
+  {key:'detonator',       label:'Electric Detonators',  unit:'per nos.'},
+  {key:'fuseWire',        label:'Fuse wire',            unit:'per m'},
+  {key:'chemical',        label:'Chemical',             unit:'per kg'},
+  {key:'excavator',       label:'Hydraulic excavator',  unit:'per hr'},
+  {key:'rockBreaker',     label:'Excavator w/ breaker', unit:'per hr'},
+  {key:'dozer',           label:'Dozer',                unit:'per hr'},
+  {key:'airCompressor',   label:'Air compressor',       unit:'per hr'},
+  {key:'jackHammer',      label:'Jack hammer/drill',    unit:'per hr'},
+  {key:'tipper',          label:'Tipper',               unit:'per hr'},
+  {key:'loader',          label:'Loader',               unit:'per hr'},
+  {key:'roller',          label:'Vibratory roller',     unit:'per hr'},
+  {key:'rotavator',       label:'Tractor w/ rotavator', unit:'per hr'},
+  {key:'tractorTrolley',  label:'Tractor-trolley',      unit:'per hr'},
+  {key:'plateCompactor',  label:'Plate compactor',      unit:'per hr'},
+  {key:'water',           label:'Water',                unit:'per KL'},
+  {key:'borrowMaterial',  label:'Borrow material',      unit:'per cum'},
+  {key:'filterMedia',     label:'Filter media',         unit:'per cum'},
+  {key:'sand',            label:'Sand',                 unit:'per cum'},
+  {key:'rockCredit',      label:'Excavated rock credit',unit:'per cum'}
+];
+
+const ADDON_DEFS = [
+  {key:'overhead',    label:'Contractor Overhead'},
+  {key:'contingency', label:'Contingency'},
+  {key:'profit',      label:'Profit / Margin'},
+  {key:'tax',         label:'Taxes / GST'}
+];
+
+const GROUPS = [
+{
+  title:'9.1 Earthwork Excavation in Cutting',
+  ref:'SS Ref. to: 905',
+  items:[
+    {
+      id:'9.1.IA', code:'9.1 I (a)', label:'Roadway Excavation in Soil (Manual)',
+      desc:'Roadway Excavation in all types of Soil by Manual Means',
+      unit:'cum', basis:12,
+      labour:{skilled:1.00, unskilled:8.00},
+      material:{},
+      water:0, equipPct:3, remarks:'Includes Doko, Thunse etc. @ 3% of Labour cost.'
+    },
+    {
+      id:'9.1.IB', code:'9.1 I (b)', label:'Roadway Excavation in Soil (Mechanical)',
+      desc:'Roadway Excavation in all types of Soil by Mechanical Means',
+      unit:'cum', basis:360,
+      labour:{skilled:1.00, unskilled:3.00},
+      material:{},
+      equipment:{excavator:6.00},
+      water:0, equipPct:0, remarks:'Includes hydraulic excavator.'
+    },
+    {
+      id:'9.1.IIA', code:'9.1 II (a)', label:'Roadway Excavation in Ordinary Rock (Manual)',
+      desc:'Roadway Excavation in ordinary rock by Manual Means',
+      unit:'cum', basis:60,
+      labour:{skilled:3.00, unskilled:50.00},
+      material:{},
+      water:0, equipPct:3, remarks:'Includes Doko, Thunse etc. @ 3% of Labour cost.'
+    },
+    {
+      id:'9.1.IIB', code:'9.1 II (b)', label:'Roadway Excavation in Ordinary Rock (Mechanical)',
+      desc:'Roadway Excavation in ordinary rock by Mechanical Means',
+      unit:'cum', basis:120,
+      labour:{skilled:1.00, unskilled:3.00},
+      material:{},
+      equipment:{excavator:6.00},
+      water:0, equipPct:0, remarks:'Includes hydraulic excavator.'
+    },
+    {
+      id:'9.1.IIIA', code:'9.1 III (a)', label:'Roadway Excavation in Hard Rock (Mechanical Drilling & Blasting)',
+      desc:'Roadway Excavation in Hard Rock with mechanical drilling, blasting, breaking, and disposal',
+      unit:'cum', basis:90,
+      labour:{skilled:1.00, unskilled:20.00, driller:3.00, blaster:1.00},
+      material:{gelatin:32.00, detonator:126.00, fuseWire:180.00, rockCredit:-45.00},
+      equipment:{jackHammer:6.00, dozer:12.00, airCompressor:30.00},
+      water:0, equipPct:0, remarks:'Includes credit for excavated rock for use @ 50 percent.'
+    },
+    {
+      id:'9.1.IIIB', code:'9.1 III (b)', label:'Roadway Excavation in Hard Rock (Manual Drilling & Blasting)',
+      desc:'Roadway Excavation in hard rock with manual drilling, blasting, breaking',
+      unit:'cum', basis:90,
+      labour:{skilled:3.00, unskilled:150.00, blaster:1.00},
+      material:{gelatin:32.00, detonator:126.00, fuseWire:180.00, rockCredit:-45.00},
+      water:0, equipPct:3, remarks:'Includes crow bar and other T&P @ 3% of labour cost and rock credit @ 50%.'
+    },
+    {
+      id:'9.1.IVA', code:'9.1 IV (A)', label:'Roadway Excavation in Hard Rock with Rock Breakers (Mechanical)',
+      desc:'Roadway Excavation in hard rock with rock breakers, lead upto 30m',
+      unit:'cum', basis:16,
+      labour:{skilled:1.00, unskilled:10.00},
+      material:{rockCredit:-8.00},
+      equipment:{rockBreaker:6.00},
+      water:0, equipPct:0, remarks:'Mechanical method with hydraulic excavator with rock breaker attachment.'
+    }
+  ]
+},
+{
+  title:'9.2 Removal of Unserviceable Soil',
+  ref:'SS Ref. to: 900',
+  items:[
+    {
+      id:'9.2', code:'9.2', label:'Removal of Unserviceable Soil with Disposal upto 1000m',
+      desc:'Removal of unserviceable soil including excavation and disposal upto 1000 meters',
+      unit:'cum', basis:360,
+      labour:{skilled:1.00, unskilled:4.00},
+      material:{},
+      equipment:{excavator:6.00, tipper:18.00},
+      water:0, equipPct:0, remarks:'Replacement of unsuitable soil by suitable soil is to be paid separately.'
+    }
+  ]
+},
+{
+  title:'9.3 Trimming / Rock Excavation Slopes',
+  ref:'SS Ref. to: 905',
+  items:[
+    {
+      id:'9.3', code:'9.3', label:'Controlled Blasting for Rock Slopes',
+      desc:'Excavation in hard rock to achieve specified slope by controlled use of explosives',
+      unit:'sqm', basis:400,
+      labour:{skilled:1.00, unskilled:22.00},
+      material:{gelatin:42.00, detonator:672.00},
+      equipment:{airCompressor:6.00, jackHammer:30.00, dozer:6.00, loader:6.00},
+      water:0, equipPct:0, remarks:'Basis: 400 sqm (120 cum considering 300 mm deep excavation on rock face).'
+    }
+  ]
+},
+{
+  title:'9.4 Excavation for Structures Foundation',
+  ref:'SS Ref. to: 907',
+  items:[
+    {
+      id:'9.4.IA', code:'9.4 I (A)', label:'Foundation Excavation - Ordinary Soil (Manual, Depth upto 3m)',
+      desc:'Earth work in excavation of foundation of structures, depth upto 3m',
+      unit:'cum', basis:10,
+      labour:{skilled:1.00, unskilled:8.00},
+      material:{},
+      water:0, equipPct:0, remarks:'Cost of dewatering may be added where required as per site conditions.'
+    },
+    {
+      id:'9.4.IB', code:'9.4 I (B)', label:'Foundation Excavation - Ordinary Soil (Mechanical, Depth upto 3m)',
+      desc:'Earth work in excavation of foundation of structures (Mechanical, upto 3m)',
+      unit:'cum', basis:240,
+      labour:{skilled:1.00, unskilled:3.00},
+      material:{},
+      equipment:{excavator:6.00},
+      water:0, equipPct:0, remarks:'Assessment for dewatering shall be made as per site conditions.'
+    }
+  ]
+},
+{
+  title:'9.5 & 9.6 Top Soil Operations',
+  ref:'SS Ref. to: 909',
+  items:[
+    {
+      id:'9.5', code:'9.5', label:'Stripping and Storing Top Soil',
+      desc:'Stripping, storing of top soil by road side at 15 m for re-application',
+      unit:'cum', basis:300,
+      labour:{skilled:2.00, unskilled:10.00},
+      material:{},
+      equipment:{dozer:6.00},
+      water:0, equipPct:0, remarks:'Locality where internal and re-application on embankment slopes is needed.'
+    },
+    {
+      id:'9.6', code:'9.6', label:'Stripping, Storing and Re-laying Top Soil from Borrow Areas',
+      desc:'Stripping top soil from borrow areas in agricultural fields, storing and re-laying',
+      unit:'cum', basis:150,
+      labour:{skilled:2.00, unskilled:15.00},
+      material:{},
+      equipment:{dozer:6.00},
+      water:0, equipPct:0, remarks:'To maintain fertility of agricultural field after taking borrow earth.'
+    }
+  ]
+},
+{
+  title:'9.7 & 9.8 Formation & Embankment Construction',
+  ref:'SS Ref. to: 909, 910',
+  items:[
+    {
+      id:'9.7', code:'9.7', label:'Preparation and Surface Treatment of Formation',
+      desc:'Preparation and surface treatment of formation by removing mud and slurry, watering, compacting',
+      unit:'sqm', basis:3500,
+      labour:{skilled:1.00, unskilled:10.00},
+      material:{},
+      equipment:{roller:6.00},
+      water:18.00, equipPct:0, remarks:'Water input: 18.00 KL per 3500 sqm.'
+    },
+    {
+      id:'9.8', code:'9.8', label:'Embankment Construction with Borrow Pits Material',
+      desc:'Providing, laying, spreading and compacting embankment with borrow material',
+      unit:'cum', basis:300,
+      labour:{skilled:1.00, unskilled:4.00},
+      material:{borrowMaterial:360.00},
+      equipment:{excavator:6.00, rotavator:12.00, dozer:3.00, motorGrader:3.00, roller:6.00},
+      water:72.00, equipPct:0, remarks:'Includes borrow material (360 cum for 300 cum compacted embankment) and water.'
+    },
+    {
+      id:'9.10', code:'9.10', label:'Construction of Rock Fill Embankment',
+      desc:'Providing and laying of rock fill embankment with broken hard rock fragments',
+      unit:'cum', basis:150,
+      labour:{skilled:1.00, unskilled:10.00},
+      material:{},
+      equipment:{dozer:6.00, roller:6.00, plateCompactor:5.00},
+      water:12.00, equipPct:0, remarks:'Fragments size not exceeding 300 mm laid in layers not exceeding 500 mm thick.'
+    }
+  ]
+}
+];
+
+const ITEM_MAP = {};
+GROUPS.forEach(g => g.items.forEach(it => ITEM_MAP[it.id] = it));
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  currency:'₹',
+  rates:{
+    skilled:600,
+    unskilled:400,
+    driller:650,
+    blaster:700,
+    gelatin:120,
+    detonator:15,
+    fuseWire:8,
+    chemical:150,
+    excavator:2500,
+    rockBreaker:3000,
+    dozer:2800,
+    airCompressor:1800,
+    jackHammer:800,
+    tipper:1200,
+    loader:2200,
+    roller:2000,
+    rotavator:1500,
+    tractorTrolley:1000,
+    plateCompactor:600,
+    water:50,
+    borrowMaterial:300,
+    filterMedia:1200,
+    sand:1500,
+    rockCredit:400
+  },
+  addons:{ overhead:10, contingency:3, profit:10, tax:0 },
+  selected:new Set(),
+  qtyOverrides:{}
+};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function fmt(v){
+  v = Number(v);
+  if(!isFinite(v)) v = 0;
+  return v.toLocaleString('en-IN',{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function money(v){ return state.currency + ' ' + fmt(v); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function effectiveStandardQty(item, qkey){
+  const parts = qkey.split(':');
+  const type = parts[0], key = parts[1];
+  if (type === 'labour') return (item.labour && item.labour[key]) || 0;
+  if (type === 'material') return (item.material && item.material[key]) || 0;
+  if (type === 'equipment') return (item.equipment && item.equipment[key]) || 0;
+  if (qkey === 'water') return item.water || 0;
+  return 0;
+}
+
+function getQtyOverride(itemId, qkey){
+  const ov = state.qtyOverrides[itemId];
+  if (!ov) return undefined;
+  return Object.prototype.hasOwnProperty.call(ov, qkey) ? ov[qkey] : undefined;
+}
+
+function isQtyOverridden(itemId, qkey){
+  return getQtyOverride(itemId, qkey) !== undefined;
+}
+
+function setQtyOverride(itemId, qkey, value, item){
+  const standard = effectiveStandardQty(item, qkey);
+  const v = Number(value);
+  if (!isFinite(v)) return;
+  if (!state.qtyOverrides[itemId]) state.qtyOverrides[itemId] = {};
+  if (Math.abs(v - standard) < 1e-9) {
+    delete state.qtyOverrides[itemId][qkey];
+    if (Object.keys(state.qtyOverrides[itemId]).length === 0) delete state.qtyOverrides[itemId];
+  } else {
+    state.qtyOverrides[itemId][qkey] = v;
+  }
+}
+
+function clearQtyOverride(itemId, qkey){
+  if (!state.qtyOverrides[itemId]) return;
+  delete state.qtyOverrides[itemId][qkey];
+  if (Object.keys(state.qtyOverrides[itemId]).length === 0) delete state.qtyOverrides[itemId];
+}
+
+/* ============================================================
+   BUILD INPUT PANELS
+   ============================================================ */
+function buildRatesPanel(){
+  const g = document.getElementById('ratesGrid');
+  let html = `<div class="field">
+      <label>Currency Symbol</label>
+      <input type="text" id="currencyInput" value="${esc(state.currency)}" maxlength="4">
+    </div>`;
+  RATE_DEFS.forEach(d=>{
+    html += `<div class="field">
+        <label>${d.label} <span class="unit">(${d.unit})</span></label>
+        <input type="number" class="rate-input" data-key="${d.key}" step="0.01" value="${state.rates[d.key]}">
+      </div>`;
+  });
+  g.innerHTML = html;
+
+  document.getElementById('currencyInput').addEventListener('input', e=>{
+    state.currency = e.target.value || '';
+    updateAll();
+  });
+  g.querySelectorAll('.rate-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      state.rates[inp.dataset.key] = parseFloat(inp.value) || 0;
+      updateAll();
+    });
+  });
+}
+
+function buildAddonsPanel(){
+  const g = document.getElementById('addonsGrid');
+  let html = '';
+  ADDON_DEFS.forEach(d=>{
+    html += `<div class="field">
+        <label>${d.label} <span class="unit">(%)</span></label>
+        <input type="number" class="addon-input" data-key="${d.key}" min="0" step="0.01" value="${state.addons[d.key]}">
+      </div>`;
+  });
+  g.innerHTML = html;
+  g.querySelectorAll('.addon-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      state.addons[inp.dataset.key] = parseFloat(inp.value) || 0;
+      updateAll();
+    });
+  });
+}
+
+/* ============================================================
+   BUILD ITEM LIST
+   ============================================================ */
+function buildItemsList(){
+  const box = document.getElementById('itemsList');
+  let html = '';
+  GROUPS.forEach(g=>{
+    html += `<div class="group">
+      <div class="group-head"><span>${esc(g.title)}</span><span class="ref">${esc(g.ref)}</span></div>`;
+    g.items.forEach(it=>{
+      html += `<div class="item-card" data-id="${it.id}">
+        <label class="item-head">
+          <input type="checkbox" class="item-check" data-id="${it.id}">
+          <span class="item-code">${esc(it.code)}</span>
+          <span class="item-desc">${esc(it.label)}</span>
+          <span class="badge">${esc(it.unit)}</span>
+        </label>
+        <div class="item-body"></div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  box.innerHTML = html;
+
+  box.addEventListener('change', e=>{
+    const t = e.target;
+    if(t.classList.contains('item-check')){
+      if(t.checked) state.selected.add(t.dataset.id);
+      else state.selected.delete(t.dataset.id);
+      updateAll();
+    }
+  });
+
+  box.addEventListener('input', e=>{
+    const t = e.target;
+    if (!t.classList.contains('qty-input')) return;
+    const itemId = t.dataset.itemId;
+    const qkey   = t.dataset.qkey;
+    const item   = ITEM_MAP[itemId];
+    const v = parseFloat(t.value);
+    if (isFinite(v)) {
+      setQtyOverride(itemId, qkey, v, item);
+      t.classList.remove('qty-error');
+      updateItemNumbers(itemId);
+    } else {
+      t.classList.add('qty-error');
+    }
+  });
+
+  box.addEventListener('focusout', e=>{
+    const t = e.target;
+    if (!t.classList || !t.classList.contains('qty-input')) return;
+    if (!t.classList.contains('qty-error')) return;
+    const itemId = t.dataset.itemId;
+    const qkey   = t.dataset.qkey;
+    const item   = ITEM_MAP[itemId];
+    const fallback = getQtyOverride(itemId, qkey) !== undefined
+      ? getQtyOverride(itemId, qkey)
+      : effectiveStandardQty(item, qkey);
+    t.value = fallback;
+    t.classList.remove('qty-error');
+  });
+
+  box.addEventListener('click', e=>{
+    const t = e.target.closest('.override-star');
+    if (!t || t.tagName !== 'BUTTON') return;
+    resetQty(t.dataset.itemId, t.dataset.qkey);
+  });
+}
+
+/* ============================================================
+   COMPUTATION
+   ============================================================ */
+function computeItem(item, st){
+  const r = st.rates;
+
+  const getEff = qkey => {
+    const o = getQtyOverride(item.id, qkey);
+    return o !== undefined ? o : effectiveStandardQty(item, qkey);
+  };
+
+  /* labour */
+  const labourKeys = Object.keys(item.labour || {});
+  const labourLines = labourKeys.map(k=>{
+    const qkey = 'labour:' + k;
+    const qty = getEff(qkey);
+    return {
+      key: k,
+      label: k.charAt(0).toUpperCase() + k.slice(1) + ' labour',
+      unit: 'day',
+      qty,
+      rate: r[k] || 0,
+      overridden: isQtyOverridden(item.id, qkey),
+      amount: qty * (r[k] || 0)
+    };
+  });
+  const labourCost = labourLines.reduce((s,l)=>s+l.amount, 0);
+
+  /* materials */
+  const materialKeys = Object.keys(item.material || {});
+  const materialLines = materialKeys.map(k=>{
+    const qkey = 'material:' + k;
+    const qty = getEff(qkey);
+    const rate = (k === 'rockCredit') ? (r.rockCredit || 0) : (r[k] || 0);
+    return {
+      key: k,
+      label: MAT_LABEL[k] || k,
+      unit: MAT_UNIT[k] || '',
+      qty,
+      rate,
+      overridden: isQtyOverridden(item.id, qkey),
+      amount: qty * rate
+    };
+  });
+  const materialCost = materialLines.reduce((s,l)=>s+l.amount, 0);
+
+  /* water */
+  const waterQty = getEff('water');
+  const waterOverridden = isQtyOverridden(item.id, 'water');
+  const waterCost = waterQty * (r.water || 0);
+
+  /* equipment */
+  const eqKeys = Object.keys(item.equipment || {});
+  const equipmentLines = eqKeys.map(k=>{
+    const qkey = 'equipment:' + k;
+    const qty = getEff(qkey);
+    return {
+      key: k,
+      label: RATE_DEFS.find(d => d.key === k)?.label || k,
+      unit: 'hr',
+      qty,
+      rate: r[k] || 0,
+      overridden: isQtyOverridden(item.id, qkey),
+      amount: qty * (r[k] || 0)
+    };
+  });
+  const equipmentCost = equipmentLines.reduce((s,l)=>s+l.amount, 0);
+
+  /* tools / T&P percentage */
+  const toolCost = labourCost * (item.equipPct || 0) / 100;
+
+  const direct = labourCost + materialCost + waterCost + equipmentCost + toolCost;
+  const perUnit = direct / item.basis;
+
+  const oh = perUnit * st.addons.overhead / 100;
+  const cont = perUnit * st.addons.contingency / 100;
+  const sub1 = perUnit + oh + cont;
+  const profit = sub1 * st.addons.profit / 100;
+  const beforeTax = sub1 + profit;
+  const tax = beforeTax * st.addons.tax / 100;
+  const finalRate = beforeTax + tax;
+
+  return {
+    item,
+    labourLines, materialLines, equipmentLines,
+    waterQty, waterCost, waterOverridden,
+    labourCost, materialCost: materialCost + waterCost, equipmentCost: equipmentCost + toolCost,
+    direct, perUnit, oh, cont, profit, tax, beforeTax, finalRate
+  };
+}
+
+function getSelectedComputed(){
+  const out = [];
+  GROUPS.forEach(g => g.items.forEach(it=>{
+    if(state.selected.has(it.id)) out.push(computeItem(it, state));
+  }));
+  return out;
+}
+
+/* ============================================================
+   HTML BUILDERS
+   ============================================================ */
+function qtyCellHTML(itemId, qkey, qty, overridden, printMode){
+  const std = effectiveStandardQty(ITEM_MAP[itemId], qkey);
+  const title = `Overridden — standard: ${fmt(std)}. Click to reset.`;
+
+  if (printMode) {
+    return `<td class="num qty-cell">${fmt(qty)}${
+      overridden ? `<span class="override-star" title="${esc(title)}">*</span>` : ''
+    }</td>`;
+  }
+
+  return `<td class="num qty-cell">
+    <input type="number"
+           class="qty-input${overridden ? ' is-overridden' : ''}"
+           data-item-id="${itemId}" data-qkey="${qkey}"
+           value="${qty}" step="0.01">
+    ${
+      overridden
+        ? `<button type="button" class="override-star"
+                   data-item-id="${itemId}" data-qkey="${qkey}"
+                   title="${esc(title)}">*</button>`
+        : ''
+    }
+  </td>`;
+}
+
+function itemBodyHTML(c){
+  const it = c.item;
+  let html = itemTableHTML(c);
+  if(it.remarks){
+    html += `<div class="remarks"><strong>Note:</strong> ${esc(it.remarks)}</div>`;
+  }
+  return html;
+}
+
+function itemTableHTML(c, printMode){
+  const it = c.item;
+  const basisTxt = `Unit: ${it.unit} &nbsp;|&nbsp; Basis: ${it.basis} ${it.unit}`;
+
+  let rows = '';
+
+  /* Labour */
+  if(c.labourLines.length > 0){
+    rows += `<tr class="sec"><td colspan="5">A. Labour</td></tr>`;
+    c.labourLines.forEach(l=>{
+      rows += `<tr>
+        <td>${esc(l.label)}</td><td>${esc(l.unit)}</td>
+        ${qtyCellHTML(it.id, 'labour:' + l.key, l.qty, l.overridden, printMode)}
+        <td class="num">${fmt(l.rate)}</td>
+        <td class="num" data-amount-key="labour:${l.key}">${fmt(l.amount)}</td></tr>`;
+    });
+    rows += `<tr class="sub" data-subtotal="labour"><td colspan="4">Sub-total — Labour</td>
+             <td class="num" data-subtotal-value>${fmt(c.labourCost)}</td></tr>`;
+  }
+
+  /* Materials */
+  if(c.materialLines.length > 0 || c.waterQty > 0 || c.waterOverridden){
+    rows += `<tr class="sec"><td colspan="5">B. Material &amp; Credits</td></tr>`;
+    c.materialLines.forEach(l=>{
+      rows += `<tr>
+        <td>${esc(l.label)}</td><td>${esc(l.unit)}</td>
+        ${qtyCellHTML(it.id, 'material:' + l.key, l.qty, l.overridden, printMode)}
+        <td class="num">${fmt(l.rate)}</td>
+        <td class="num" data-amount-key="material:${l.key}">${fmt(l.amount)}</td></tr>`;
+    });
+    if(c.waterQty > 0 || c.waterOverridden){
+      rows += `<tr>
+        <td>Cost of water</td><td>KL</td>
+        ${qtyCellHTML(it.id, 'water', c.waterQty, c.waterOverridden, printMode)}
+        <td class="num">${fmt(state.rates.water)}</td>
+        <td class="num" data-amount-key="water">${fmt(c.waterCost)}</td></tr>`;
+    }
+    rows += `<tr class="sub" data-subtotal="materials"><td colspan="4">Sub-total — Materials</td>
+             <td class="num" data-subtotal-value>${fmt(c.materialCost)}</td></tr>`;
+  }
+
+  /* Equipment & Tools */
+  if(c.equipmentLines.length > 0 || it.equipPct > 0){
+    rows += `<tr class="sec"><td colspan="5">C. Equipment &amp; Tools</td></tr>`;
+    c.equipmentLines.forEach(l=>{
+      rows += `<tr>
+        <td>${esc(l.label)}</td><td>${esc(l.unit)}</td>
+        ${qtyCellHTML(it.id, 'equipment:' + l.key, l.qty, l.overridden, printMode)}
+        <td class="num">${fmt(l.rate)}</td>
+        <td class="num" data-amount-key="equipment:${l.key}">${fmt(l.amount)}</td></tr>`;
+    });
+    if(it.equipPct > 0){
+      rows += `<tr><td>Tools &amp; Plant / T&amp;P (@ ${it.equipPct}% of labour)</td><td>—</td>
+        <td class="num">—</td><td class="num">—</td>
+        <td class="num" data-amount-key="tool">${fmt(c.labourCost * it.equipPct / 100)}</td></tr>`;
+    }
+  }
+
+  /* Totals */
+  rows += `<tr class="total" data-total="direct"><td colspan="4">Total cost for ${it.basis} ${esc(it.unit)}</td>
+           <td class="num" data-total-value>${fmt(c.direct)}</td></tr>`;
+  rows += `<tr class="total" data-total="perUnit"><td colspan="4">Cost per ${esc(it.unit)} (direct)</td>
+           <td class="num" data-total-value>${fmt(c.perUnit)}</td></tr>`;
+
+  /* Add‑ons */
+  const a = state.addons;
+  if(a.overhead)    rows += `<tr data-addon="oh"><td colspan="4">Contractor overhead @ ${a.overhead}%</td><td class="num" data-addon-value>${fmt(c.oh)}</td></tr>`;
+  if(a.contingency) rows += `<tr data-addon="cont"><td colspan="4">Contingency @ ${a.contingency}%</td><td class="num" data-addon-value>${fmt(c.cont)}</td></tr>`;
+  if(a.profit)      rows += `<tr data-addon="profit"><td colspan="4">Profit @ ${a.profit}%</td><td class="num" data-addon-value>${fmt(c.profit)}</td></tr>`;
+  if(a.tax)         rows += `<tr data-addon="tax"><td colspan="4">Taxes / GST @ ${a.tax}%</td><td class="num" data-addon-value>${fmt(c.tax)}</td></tr>`;
+
+  rows += `<tr class="final" data-final><td colspan="4">FINAL RATE per ${esc(it.unit)}</td>
+           <td class="num" data-final-value>${esc(state.currency)} ${fmt(c.finalRate)}</td></tr>`;
+
+  return `<div class="ra">
+    <div class="ra-head">
+      <strong>Rate Analysis — ${esc(it.code)} ${esc(it.desc)}</strong>
+      <span class="meta">${basisTxt}</span>
+    </div>
+    <table class="ra-table">
+      <thead><tr>
+        <th>Particulars</th><th>Unit</th>
+        <th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function summaryHTML(){
+  const items = getSelectedComputed();
+  if(!items.length) return `<div class="empty">No items selected yet. Tick the items above to build the analysis.</div>`;
+  let rows = '';
+  items.forEach(c=>{
+    rows += `<tr>
+      <td><strong>${esc(c.item.code)}</strong></td>
+      <td>${esc(c.item.desc)}</td>
+      <td>${esc(c.item.unit)}</td>
+      <td class="num">${esc(state.currency)} ${fmt(c.finalRate)}</td>
+    </tr>`;
+  });
+  return `<table class="summary-table">
+    <thead><tr><th style="width:90px">Code</th><th>Description</th><th style="width:70px">Unit</th>
+      <th class="num" style="width:150px">Final Rate</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function updateAll(){
+  document.querySelectorAll('.item-card').forEach(card=>{
+    const id = card.dataset.id;
+    const body = card.querySelector('.item-body');
+    if(state.selected.has(id)){
+      card.classList.add('on');
+      body.innerHTML = itemBodyHTML(computeItem(ITEM_MAP[id], state));
+    } else {
+      card.classList.remove('on');
+      body.innerHTML = '';
+    }
+  });
+  document.getElementById('summaryBox').innerHTML = summaryHTML();
+}
+
+function updateItemNumbers(itemId){
+  const card = document.querySelector(`.item-card[data-id="${itemId}"]`);
+  if (!card || !state.selected.has(itemId)) return;
+  const c = computeItem(ITEM_MAP[itemId], state);
+
+  c.labourLines.forEach(l=>{
+    const cell = card.querySelector(`[data-amount-key="labour:${l.key}"]`);
+    if (cell) cell.textContent = fmt(l.amount);
+  });
+  const subL = card.querySelector('[data-subtotal="labour"] [data-subtotal-value]');
+  if (subL) subL.textContent = fmt(c.labourCost);
+
+  c.materialLines.forEach(l=>{
+    const cell = card.querySelector(`[data-amount-key="material:${l.key}"]`);
+    if (cell) cell.textContent = fmt(l.amount);
+  });
+  const wCell = card.querySelector('[data-amount-key="water"]');
+  if (wCell) wCell.textContent = fmt(c.waterCost);
+
+  c.equipmentLines.forEach(l=>{
+    const cell = card.querySelector(`[data-amount-key="equipment:${l.key}"]`);
+    if (cell) cell.textContent = fmt(l.amount);
+  });
+
+  const totDirect = card.querySelector('[data-total="direct"] [data-total-value]');
+  if (totDirect) totDirect.textContent = fmt(c.direct);
+  const totPerUnit = card.querySelector('[data-total="perUnit"] [data-total-value]');
+  if (totPerUnit) totPerUnit.textContent = fmt(c.perUnit);
+
+  ['oh','cont','profit','tax'].forEach(k=>{
+    const cell = card.querySelector(`[data-addon="${k}"] [data-addon-value]`);
+    if (cell) cell.textContent = fmt(c[k]);
+  });
+
+  const finalCell = card.querySelector('[data-final-value]');
+  if (finalCell) finalCell.textContent = state.currency + ' ' + fmt(c.finalRate);
+
+  card.querySelectorAll('.qty-input').forEach(inp=>{
+    const qkey = inp.dataset.qkey;
+    const isOv = isQtyOverridden(itemId, qkey);
+    inp.classList.toggle('is-overridden', isOv);
+    syncQtyStar(inp, itemId, qkey, isOv);
+  });
+
+  document.getElementById('summaryBox').innerHTML = summaryHTML();
+}
+
+function syncQtyStar(inp, itemId, qkey, isOv){
+  const cell = inp.parentElement;
+  const existing = cell.querySelector('.override-star');
+  if (isOv && !existing) {
+    const std = effectiveStandardQty(ITEM_MAP[itemId], qkey);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'override-star';
+    btn.dataset.itemId = itemId;
+    btn.dataset.qkey = qkey;
+    btn.title = `Overridden — standard: ${fmt(std)}. Click to reset.`;
+    btn.textContent = '*';
+    cell.appendChild(btn);
+  } else if (!isOv && existing) {
+    existing.remove();
+  }
+}
+
+function resetQty(itemId, qkey){
+  clearQtyOverride(itemId, qkey);
+  const qty = effectiveStandardQty(ITEM_MAP[itemId], qkey);
+  const card = document.querySelector(`.item-card[data-id="${itemId}"]`);
+  const inp = card ? card.querySelector(`.qty-input[data-qkey="${qkey}"]`) : null;
+  if (inp) {
+    inp.value = qty;
+    inp.classList.remove('qty-error');
+  }
+  updateItemNumbers(itemId);
+}
+
+/* ============================================================
+   EXPORTERS
+   ============================================================ */
+function csvCell(v){
+  const s = String(v == null ? '' : v);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function toCSV(rows){
+  return rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+}
+function download(filename, content, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+}
+function stamp(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
+}
+function noSelection(){
+  if(!getSelectedComputed().length){
+    alert('Please select at least one work item first.');
+    return true;
+  }
+  return false;
+}
+
+function exportCSV(){
+  if(noSelection()) return;
+  const items = getSelectedComputed();
+  const rows = [];
+  rows.push(['Rate Analysis Report — Section 900: Earth Works']);
+  rows.push(['Generated', new Date().toLocaleString()]);
+  rows.push(['Currency', state.currency]);
+  rows.push([]);
+
+  items.forEach(c=>{
+    const it = c.item;
+    rows.push(['Item Code', it.code]);
+    rows.push(['Description', it.desc]);
+    rows.push(['Unit', it.unit]);
+    rows.push(['Basis', it.basis + ' ' + it.unit]);
+    rows.push(['Particulars','Unit','Quantity','Rate','Amount']);
+
+    c.labourLines.forEach(l => {
+      rows.push([l.label, l.unit, l.qty.toFixed(2), l.rate.toFixed(2), l.amount.toFixed(2)]);
+    });
+    c.materialLines.forEach(l => {
+      rows.push([l.label, l.unit, l.qty.toFixed(2), l.rate.toFixed(2), l.amount.toFixed(2)]);
+    });
+    c.equipmentLines.forEach(l => {
+      rows.push([l.label, l.unit, l.qty.toFixed(2), l.rate.toFixed(2), l.amount.toFixed(2)]);
+    });
+    rows.push([`FINAL RATE per ${it.unit}`,'','','', c.finalRate.toFixed(2)]);
+    rows.push([]);
+  });
+  download(`rate-analysis-900-${stamp()}.csv`, '\uFEFF' + toCSV(rows), 'text/csv;charset=utf-8;');
+}
+
+function exportTXT(){
+  if(noSelection()) return;
+  const items = getSelectedComputed();
+  const W = 100;
+  const L = [];
+  const line = ch => L.push(ch.repeat(W));
+
+  line('=');
+  L.push('RATE ANALYSIS — SECTION 900: EARTH WORKS');
+  L.push('Generated : ' + new Date().toLocaleString());
+  line('=');
+  L.push('');
+
+  items.forEach(c=>{
+    const it = c.item;
+    L.push(`ITEM ${it.code} — ${it.desc}`);
+    L.push(`Unit: ${it.unit}   |   Basis: ${it.basis} ${it.unit}`);
+    line('-');
+    L.push(`FINAL RATE per ${it.unit}: ${state.currency} ${fmt(c.finalRate)}`);
+    L.push('');
+  });
+  download(`rate-analysis-900-${stamp()}.txt`, L.join('\n'), 'text/plain;charset=utf-8;');
+}
+
+function exportPDF(){
+  if(noSelection()) return;
+  const items = getSelectedComputed();
+  const area = document.getElementById('printArea');
+
+  let h = `<h1>Rate Analysis — Section 900: Earth Works</h1>`;
+  h += `<div class="print-meta">Generated: ${new Date().toLocaleString()} &nbsp;|&nbsp; Currency: ${esc(state.currency)}</div>`;
+  items.forEach(c=>{ h += itemTableHTML(c, true); });
+  h += `<h1 style="font-size:13px;margin-top:18px">Summary</h1>` + summaryHTML();
+
+  area.innerHTML = h;
+  setTimeout(()=>{ window.print(); }, 120);
+}
+
+function wireToolbar(){
+  document.getElementById('btnSelectAll').addEventListener('click', ()=>{
+    GROUPS.forEach(g=>g.items.forEach(it=>state.selected.add(it.id)));
+    document.querySelectorAll('.item-check').forEach(cb=>cb.checked = true);
+    updateAll();
+  });
+  document.getElementById('btnClear').addEventListener('click', ()=>{
+    state.selected.clear();
+    state.qtyOverrides = {};
+    document.querySelectorAll('.item-check').forEach(cb=>cb.checked = false);
+    updateAll();
+  });
+  document.getElementById('btnCSV').addEventListener('click', exportCSV);
+  document.getElementById('btnTXT').addEventListener('click', exportTXT);
+  document.getElementById('btnPDF').addEventListener('click', exportPDF);
+}
+
+buildRatesPanel();
+buildAddonsPanel();
+buildItemsList();
+wireToolbar();
+updateAll();
+</script>
+</body>
+</html>
