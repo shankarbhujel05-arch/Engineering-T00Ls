@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RRM Retaining Wall Calculator</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --bg-dark: #121212;
+        --panel-bg: #1e1e1e;
+        --card-bg: #262626;
+        --accent-green: #00e676;
+        --accent-blue: #00e5ff;
+        --accent-yellow: #ffea00;
+        --accent-amber: #ffb300;
+        --accent-red: #ff4d6d;
+        --text-main: #e0e0e0;
+        --text-muted: #a0a0a0;
+        --border-color: #333333;
+        --cad-bg: #0b0e14;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    header {
+        background-color: var(--panel-bg);
+        padding: 14px 25px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    header h1 {
+        font-size: 1.35rem;
+        color: var(--accent-green);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    header .subtitle { font-size: 0.82rem; color: var(--text-muted); }
+
+    .main-container {
+        display: grid;
+        grid-template-columns: 390px 1fr;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+    @media (max-width: 1024px) {
+        .main-container { grid-template-columns: 1fr; overflow: auto; }
+    }
+
+    /* ---------- Sidebar ---------- */
+    .sidebar {
+        background-color: var(--panel-bg);
+        border-right: 1px solid var(--border-color);
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .section-title {
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--accent-blue);
+        margin-bottom: 12px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .input-group { display: flex; flex-direction: column; gap: 4px; }
+    .input-group.full-width { grid-column: span 2; }
+    .input-group.hidden { display: none; }
+    label { font-size: 0.76rem; color: var(--text-muted); }
+    input, select {
+        background-color: #141414;
+        border: 1px solid var(--border-color);
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        width: 100%;
+    }
+    input:focus, select:focus {
+        border-color: var(--accent-green);
+        box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.15);
+    }
+
+    .warnings {
+        background: rgba(255, 179, 0, 0.08);
+        border: 1px solid rgba(255, 179, 0, 0.5);
+        color: var(--accent-amber);
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+    .warnings:empty { display: none; }
+    .warnings ul { margin: 0; padding-left: 16px; }
+    .warnings li + li { margin-top: 4px; }
+
+    /* ---------- Viewport ---------- */
+    .viewport-area {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--bg-dark);
+        min-height: 0;
+        overflow: hidden;
+    }
+    .toolbar {
+        background-color: var(--panel-bg);
+        padding: 10px 16px;
+        display: flex;
+        gap: 10px;
+        border-bottom: 1px solid var(--border-color);
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .btn {
+        background-color: var(--card-bg);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        padding: 8px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: background 0.18s, border-color 0.18s, transform 0.1s;
+        white-space: nowrap;
+    }
+    .btn:hover { background-color: #333; color: #fff; border-color: #555; }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background-color: #0066cc; border-color: #0055b3; color: #fff; }
+    .btn-primary:hover { background-color: #0052a3; }
+    .btn-success { background-color: #008744; border-color: #007038; color: #fff; }
+    .btn-success:hover { background-color: #006633; }
+    .btn-ghost { background: transparent; }
+    .toolbar .spacer { flex: 1 1 auto; }
+
+    .cad-container {
+        flex: 1;
+        position: relative;
+        background-color: var(--cad-bg);
+        display: flex;
+        min-height: 380px;
+        overflow: hidden;
+    }
+    svg#cadCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: crosshair;
+    }
+
+    /* ---------- Results ---------- */
+    .results-panel {
+        background-color: var(--panel-bg);
+        border-top: 1px solid var(--border-color);
+        padding: 18px 20px;
+        max-height: 290px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+        gap: 14px;
+    }
+    .res-card {
+        background-color: var(--card-bg);
+        padding: 12px 14px;
+        border-radius: 6px;
+        border-left: 4px solid var(--accent-blue);
+        transition: background 0.2s;
+    }
+    .res-card:hover { background-color: #2c2c2c; }
+    .res-card.material { border-left-color: var(--accent-green); }
+    .res-card.earthwork { border-left-color: var(--accent-yellow); }
+    .res-card.weight { border-left-color: var(--accent-amber); }
+    .res-card h4 {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+    .res-card .val { font-size: 1.18rem; font-weight: 700; color: #fff; }
+    .res-card .sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; line-height: 1.35; }
+
+    /* ---------- Print ---------- */
+    @media print {
+        body { background: #fff; color: #000; }
+        header, .sidebar, .toolbar { display: none !important; }
+        .main-container { display: block; overflow: visible; }
+        .viewport-area { display: block; }
+        .cad-container {
+            background: #fff;
+            border: 1px solid #ccc;
+            height: 470px;
+            min-height: 470px;
+            margin-bottom: 12px;
+        }
+        .results-panel {
+            background: #fff;
+            border: none;
+            max-height: none;
+            overflow: visible;
+            padding: 0;
+        }
+        .res-card {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-left: 4px solid #333;
+            color: #000;
+            break-inside: avoid;
+        }
+        .res-card .val { color: #000; }
+        .res-card .sub { color: #444; }
+        .res-card h4 { color: #333; }
+        .section-title { color: #000; border-bottom: 1px solid #ccc; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1><i class="fa-solid fa-drafting-compass"></i> RRM Retaining Wall Calculator</h1>
+        <div class="subtitle">Random Rubble Masonry — Design & Quantities TakeOff  @ Shankar Bhujel</div>
+
+    </div>
+</header>
+
+<div class="main-container">
+    <!-- ================= Sidebar ================= -->
+    <aside class="sidebar">
+        <div id="warnings" class="warnings"></div>
+
+        <div>
+            <div class="section-title"><i class="fa-solid fa-ruler-combined"></i> Geometric Inputs</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="wallLength">Wall Length L (m)</label>
+                    <input type="number" id="wallLength" value="10.0" step="0.5" min="0.5" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="wallHeight">RRM Height H (m)</label>
+                    <input type="number" id="wallHeight" value="3.0" step="0.1" min="0.3" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="topWidth">Top Width (m)</label>
+                    <input type="number" id="topWidth" value="0.50" step="0.05" min="0.1" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="baseFactor">Base Factor (% of H)</label>
+                    <input type="number" id="baseFactor" value="60" step="5" min="20" max="150" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="coverOffset">Cover Offset (m)</label>
+                    <input type="number" id="coverOffset" value="0.10" step="0.05" min="0" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="frontBatter">Front Batter (% of H)</label>
+                    <input type="number" id="frontBatter" value="10" step="1" min="0" max="100" inputmode="decimal">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title"><i class="fa-solid fa-layer-group"></i> Foundation &amp; Layers</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="topPccThick">PCC Cap (m)</label>
+                    <input type="number" id="topPccThick" value="0.05" step="0.05" min="0" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="basePccThick">Base PCC (m)</label>
+                    <input type="number" id="basePccThick" value="0.10" step="0.05" min="0" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="solingThick">Stone Soling (m)</label>
+                    <input type="number" id="solingThick" value="0.15" step="0.05" min="0" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label for="baseSlope">Base Slope (% of B)</label>
+                    <input type="number" id="baseSlope" value="10" step="1" min="0" max="30" inputmode="decimal">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title"><i class="fa-solid fa-cubes"></i> Material Mix Specifications</div>
+            <div class="input-grid">
+                <div class="input-group full-width">
+                    <label for="rrmRatio">RRM Mortar Ratio</label>
+                    <select id="rrmRatio">
+                        <option value="1:3">1:3 Cement Mortar</option>
+                        <option value="1:4">1:4 Cement Mortar (Rich)</option>
+                        <option value="1:5">1:5 Cement Mortar</option>
+                        <option value="1:6" selected>1:6 Cement Mortar (Standard)</option>
+                        <option value="custom">Custom… (type your own)</option>
+                    </select>
+                </div>
+                <div class="input-group full-width hidden" id="rrmCustomWrap">
+                    <label for="rrmRatioCustom">Custom Mortar Ratio (cement : sand)</label>
+                    <input type="text" id="rrmRatioCustom" value="1:4.5" placeholder="e.g. 1:4.5" inputmode="decimal">
+                </div>
+                <div class="input-group full-width">
+                    <label for="pccRatio">PCC Concrete Grade</label>
+                    <select id="pccRatio">
+                        <option value="M7.5">M7.5 (1 : 4 : 8)</option>
+                        <option value="M10" selected>M10 (1 : 3 : 6)</option>
+                        <option value="M15">M15 (1 : 2 : 4)</option>
+                        <option value="M20">M20 (1 : 1.5 : 3)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= Viewport ================= -->
+    <section class="viewport-area">
+        <div class="toolbar">
+            <button type="button" class="btn" onclick="exportCSV()">
+                <i class="fa-solid fa-table-list"></i> Export BOQ (CSV)
+            </button>
+            <button type="button" class="btn" onclick="copySummary()">
+                <i class="fa-regular fa-copy"></i> Copy Summary
+            </button>
+            <button type="button" class="btn btn-success" onclick="printCalcSheet()">
+                <i class="fa-solid fa-print"></i> Print / PDF
+            </button>
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-ghost" onclick="resetDefaults()" title="Restore default values">
+                <i class="fa-solid fa-rotate-left"></i> Reset
+            </button>
+        </div>
+
+        <div class="cad-container">
+            <svg id="cadCanvas" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"
+                 role="img" aria-label="RRM retaining wall cross-section drawing">
+                <title>RRM Retaining Wall Cross-Section</title>
+                <desc>Dynamic section drawing with foundation layers and dimensions.</desc>
+            </svg>
+        </div>
+
+        <div class="results-panel">
+            <div class="section-title" style="margin-bottom:14px;">
+                <i class="fa-solid fa-calculator"></i> Quantity Summary
+            </div>
+            <div class="results-grid">
+                <div class="res-card">
+                    <h4>RRM Masonry Volume</h4>
+                    <div class="val" id="resRrmVol">—</div>
+                    <div class="sub" id="resRrmSplit">—</div>
+                </div>
+                <div class="res-card">
+                    <h4>PCC Concrete Volume</h4>
+                    <div class="val" id="resPccVol">—</div>
+                    <div class="sub" id="resPccBreakdown">—</div>
+                </div>
+                <div class="res-card">
+                    <h4>Stone Soling Volume</h4>
+                    <div class="val" id="resSolingVol">—</div>
+                    <div class="sub" id="resSolingSub">—</div>
+                </div>
+                <div class="res-card earthwork">
+                    <h4>Excavation &amp; Backfill</h4>
+                    <div class="val" id="resExcavation">—</div>
+                    <div class="sub" id="resBackfill">—</div>
+                </div>
+                <div class="res-card material">
+                    <h4>Cement Required</h4>
+                    <div class="val" id="resCement">—</div>
+                    <div class="sub" id="resCementWeight">—</div>
+                </div>
+                <div class="res-card material">
+                    <h4>Sand &amp; Aggregate</h4>
+                    <div class="val" id="resSand">—</div>
+                    <div class="sub" id="resAgg">—</div>
+                </div>
+                <div class="res-card weight">
+                    <h4>Estimated Structure Weight</h4>
+                    <div class="val" id="resWeight">—</div>
+                    <div class="sub" id="resWeightSplit">—</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+/* =====================================================================
+   RRM RETAINING WALL CALCULATOR
+   ---------------------------------------------------------------------
+   Coordinate convention for the section drawing:
+     x = 0  -> front (toe) face of the RRM wall at foundation level
+     y = 0  -> top of the base PCC (i.e. underside of the RRM wall)
+   Everything is in metres; the renderer maps metres -> pixels.
+   ===================================================================== */
+
+let geom = {};
+let printMode = false;
+
+/* ------------------------- Defaults ------------------------- */
+const DEFAULTS = {
+    wallLength: 10.0,
+    wallHeight: 3.0,
+    topWidth: 0.60,
+    baseFactor: 60,
+    coverOffset: 0.15,
+    frontBatter: 10,
+    topPccThick: 0.10,
+    basePccThick: 0.10,
+    solingThick: 0.15,
+    baseSlope: 5,
+    rrmRatio: '1:6',
+    rrmRatioCustom: '1:4.5',
+    pccRatio: 'M10'
+};
+
+/* ------------------------- PCC grades -------------------------
+   Nominal volumetric mixes (cement : sand : aggregate)            */
+const PCC_MIX = {
+    'M7.5': { label: 'M7.5 (1:4:8)',   s: 4,   a: 8 },
+    'M10':  { label: 'M10 (1:3:6)',    s: 3,   a: 6 },
+    'M15':  { label: 'M15 (1:2:4)',    s: 2,   a: 4 },
+    'M20':  { label: 'M20 (1:1.5:3)',  s: 1.5, a: 3 }
+};
+
+/* ------------------------- Themes ------------------------- */
+const THEMES = {
+    dark: {
+        bg: '#0b0e14',
+        gridMinor: '#141a22',
+        gridMajor: '#1d2530',
+        rrm: '#00e676',
+        pcc: '#00e5ff',
+        soling: '#ffea00',
+        earth: '#ff9f43',
+        earthFill: 'rgba(255,159,67,0.06)',
+        dim: '#ff4d6d',
+        text: '#e6e6e6',
+        muted: '#8a8a8a',
+        panel: 'rgba(20,24,32,0.92)',
+        panelBorder: '#2a3340'
+    },
+    light: {
+        bg: '#ffffff',
+        gridMinor: '#f0f2f5',
+        gridMajor: '#dfe3e8',
+        rrm: '#0a7d3f',
+        pcc: '#0077a3',
+        soling: '#8a6500',
+        earth: '#b06a00',
+        earthFill: 'rgba(176,106,0,0.05)',
+        dim: '#c2185b',
+        text: '#111111',
+        muted: '#555555',
+        panel: 'rgba(250,250,250,0.95)',
+        panelBorder: '#cccccc'
+    }
+};
+
+/* ------------------------- Helpers ------------------------- */
+const $ = id => document.getElementById(id);
+
+function fmt(n, d = 2) {
+    if (!isFinite(n)) return '—';
+    return n.toFixed(d);
+}
+
+function numOr(id, fallback, min, max) {
+    let v = parseFloat($(id).value);
+    if (!isFinite(v)) v = fallback;
+    if (min !== undefined) v = Math.max(min, v);
+    if (max !== undefined) v = Math.min(max, v);
+    return v;
+}
+
+function downloadBlob(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/* ------------------------- Inputs ------------------------- */
+function getInputs() {
+    return {
+        L: numOr('wallLength', DEFAULTS.wallLength, 0.5),
+        H: numOr('wallHeight', DEFAULTS.wallHeight, 0.3),
+        topW: numOr('topWidth', DEFAULTS.topWidth, 0.1),
+        baseFactor: numOr('baseFactor', DEFAULTS.baseFactor, 20, 150) / 100,
+        cover: numOr('coverOffset', DEFAULTS.coverOffset, 0),
+        frontBatterPct: numOr('frontBatter', DEFAULTS.frontBatter, 0, 100) / 100,
+        topPcc: numOr('topPccThick', DEFAULTS.topPccThick, 0),
+        basePcc: numOr('basePccThick', DEFAULTS.basePccThick, 0),
+        soling: numOr('solingThick', DEFAULTS.solingThick, 0),
+        baseSlopePct: numOr('baseSlope', DEFAULTS.baseSlope, 0, 30) / 100,
+        rrmRatioSel: $('rrmRatio').value,
+        rrmCustomText: $('rrmRatioCustom').value,
+        pccGrade: $('pccRatio').value
+    };
+}
+
+/* Resolve the mortar ratio (supports built-in or user-typed "1:x" incl. decimals) */
+function resolveMortarRatio(inp, warnings) {
+    if (inp.rrmRatioSel === 'custom') {
+        const raw = String(inp.rrmCustomText || '').replace(/[：]/g, ':').replace(/\s+/g, '');
+        const m = raw.match(/^1:([0-9]*\.?[0-9]+)$/);
+        const v = m ? parseFloat(m[1]) : NaN;
+        if (isFinite(v) && v > 0) {
+            return { sandParts: v, label: `1:${parseFloat(v.toFixed(2))}` };
+        }
+        warnings.push('Custom mortar ratio is not valid. Enter it as "1:5" or "1:4.5". Using 1:6 instead.');
+        return { sandParts: 6, label: '1:6' };
+    }
+    const parts = inp.rrmRatioSel.split(':');
+    const v = parseFloat(parts[1]);
+    return { sandParts: (isFinite(v) && v > 0) ? v : 6, label: inp.rrmRatioSel };
+}
+
+/* ------------------------- Core Calculation ------------------------- */
+function calculateGeometry() {
+    const inp = getInputs();
+    const warnings = [];
+
+    /* --- Wall base width --- */
+    let innerBase = inp.H * inp.baseFactor;
+    if (innerBase < inp.topW + 0.05) {
+        warnings.push(`Base width (${innerBase.toFixed(2)} m) is less than the top width. Base width was increased to ${(inp.topW + 0.05).toFixed(2)} m.`);
+        innerBase = inp.topW + 0.05;
+    }
+
+    /* --- Front batter (clamped so the trapezoid never inverts) --- */
+    let frontOffset = inp.H * inp.frontBatterPct;
+    const maxFrontOffset = innerBase - inp.topW;
+    if (frontOffset > maxFrontOffset) {
+        warnings.push(`Front batter offset (${frontOffset.toFixed(2)} m) exceeds the available offset (${maxFrontOffset.toFixed(2)} m). It has been limited.`);
+        frontOffset = Math.max(0, maxFrontOffset);
+    }
+    const topLeftX = frontOffset;
+    const topRightX = frontOffset + inp.topW;
+
+    /* --- Derived widths --- */
+    const totalBase = innerBase + 2 * inp.cover;
+    const baseSlopeDrop = totalBase * inp.baseSlopePct;   // used for excavation depth only
+
+    /* --- Mortar / PCC mix resolution --- */
+    const mortar = resolveMortarRatio(inp, warnings);
+    const pcc = PCC_MIX[inp.pccGrade] || PCC_MIX['M10'];
+
+    /* --- Volumes --- */
+    const rrmArea = ((inp.topW + innerBase) / 2) * inp.H;   // trapezoid
+    const rrmVol = rrmArea * inp.L;
+
+    const topPccVol = inp.topW * inp.topPcc * inp.L;
+    const basePccVol = totalBase * inp.basePcc * inp.L;
+    const totalPccVol = topPccVol + basePccVol;
+
+    /* Stone soling = plain constant-thickness layer under the base PCC.
+       (The base slope only deepens the excavation, it does NOT add soling.) */
+    const solingVol = totalBase * inp.soling * inp.L;
+
+    /* --- Excavation & backfill (with 300 mm working space) --- */
+    const ws = 0.30;
+    const excavW = totalBase + 2 * ws;
+    const excavL = inp.L + 2 * ws;
+    const avgFoundationDepth = inp.soling + inp.basePcc + baseSlopeDrop / 2;
+    const totalDepth = inp.H + inp.topPcc + avgFoundationDepth;
+    const excavationVol = excavW * excavL * totalDepth;
+
+    const structureVol = rrmVol + totalPccVol + solingVol;
+    const backfillVol = Math.max(0, excavationVol - structureVol);
+
+    /* --- Materials: RRM mortar --- */
+    const VOID_RATIO = 0.30;                    // mortar fills 30% of gross masonry
+    const mortarVol = rrmVol * VOID_RATIO;
+    const stoneVol = rrmVol * (1 - VOID_RATIO);
+    const dryMortar = mortarVol * 1.33;         // dry-volume expansion factor
+
+    const mortarSum = 1 + mortar.sandParts;     // cement : sand
+    const rrmCementBags = (dryMortar / mortarSum) * 28.8;   // 1 m³ cement ≈ 28.8 bags (50 kg)
+    const rrmSandVol = dryMortar * (mortar.sandParts / mortarSum);
+
+    /* --- Materials: PCC concrete --- */
+    const dryPcc = totalPccVol * 1.54;
+    const pccSum = 1 + pcc.s + pcc.a;
+    const pccCementBags = (dryPcc / pccSum) * 28.8;
+    const pccSandVol = dryPcc * (pcc.s / pccSum);
+    const pccAggVol = dryPcc * (pcc.a / pccSum);
+
+    const totalCementBags = Math.ceil(rrmCementBags + pccCementBags);
+    const totalSand = rrmSandVol + pccSandVol;
+
+    /* --- Weights (tonnes) --- */
+    const rrmWeight = rrmVol * 2.30;            // stone + mortar composite
+    const pccWeight = totalPccVol * 2.40;
+    const solingWeight = solingVol * 2.00;
+    const totalWeight = rrmWeight + pccWeight + solingWeight;
+
+    /* --- Assemble --- */
+    geom = {
+        ...inp,
+        innerBase,
+        totalBase,
+        frontOffset,
+        topLeftX,
+        topRightX,
+        baseSlopeDrop,
+        rrmVol,
+        stoneVol,
+        mortarVol,
+        topPccVol,
+        basePccVol,
+        totalPccVol,
+        solingVol,
+        excavationVol,
+        backfillVol,
+        totalCementBags,
+        totalSand,
+        pccAggVol,
+        rrmWeight,
+        pccWeight,
+        solingWeight,
+        totalWeight,
+        rrmRatioLabel: mortar.label,
+        pccLabel: pcc.label,
+        warnings
+    };
+
+    updateUI();
+    renderCAD();
+}
+
+/* ------------------------- UI Update ------------------------- */
+function updateUI() {
+    const g = geom;
+
+    $('resRrmVol').textContent = `${fmt(g.rrmVol)} m³`;
+    $('resRrmSplit').textContent = `Stone: ${fmt(g.stoneVol)} m³ · Mortar: ${fmt(g.mortarVol)} m³ (${g.rrmRatioLabel})`;
+
+    $('resPccVol').textContent = `${fmt(g.totalPccVol)} m³`;
+    $('resPccBreakdown').textContent = `Cap: ${fmt(g.topPccVol)} m³ | Base: ${fmt(g.basePccVol)} m³ · ${g.pccLabel}`;
+
+    $('resSolingVol').textContent = `${fmt(g.solingVol)} m³`;
+    $('resSolingSub').textContent = `${fmt(g.totalBase)} × ${fmt(g.soling)} × ${fmt(g.L)} m (level layer)`;
+
+    $('resExcavation').textContent = `${fmt(g.excavationVol)} m³`;
+    $('resBackfill').textContent = `Backfill: ${fmt(g.backfillVol)} m³`;
+
+    $('resCement').textContent = `${g.totalCementBags} Bags`;
+    $('resCementWeight').textContent = `${fmt(g.totalCementBags * 50, 0)} kg  (${fmt(g.totalCementBags * 0.05, 2)} t)`;
+
+    $('resSand').textContent = `${fmt(g.totalSand)} m³ Sand`;
+    $('resAgg').textContent = `${fmt(g.pccAggVol)} m³ Aggregate`;
+
+    $('resWeight').textContent = `${fmt(g.totalWeight)} t`;
+    $('resWeightSplit').textContent = `RRM: ${fmt(g.rrmWeight)} t | PCC: ${fmt(g.pccWeight)} t | Soling: ${fmt(g.solingWeight)} t`;
+
+    const w = $('warnings');
+    w.innerHTML = g.warnings.length
+        ? `<ul>${g.warnings.map(x => `<li>${x}</li>`).join('')}</ul>`
+        : '';
+}
+
+/* ------------------------- CAD Rendering ------------------------- */
+function renderCAD() {
+    const svg = $('cadCanvas');
+    if (!svg || !geom.H) return;
+
+    const rect = svg.getBoundingClientRect();
+    const W = Math.max(320, Math.round(rect.width) || 900);
+    const H = Math.max(260, Math.round(rect.height) || 520);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+    const t = printMode ? THEMES.light : THEMES.dark;
+    const g = geom;
+
+    /* ---------- Key elevations ---------- */
+    const solBottom = -g.basePcc - g.soling;
+
+    /* ---------- World bounds ---------- */
+    const earthRight = Math.max(g.topRightX, g.innerBase) + 2.4;
+    const worldMinX = -g.cover - 1.1;
+    const worldMaxX = earthRight + 0.35;
+    const worldMinY = solBottom - 1.0;
+    const worldMaxY = g.H + g.topPcc + 0.65;
+
+    const dx = worldMaxX - worldMinX;
+    const dy = worldMaxY - worldMinY;
+    const pad = 52;
+    const scale = Math.min((W - pad * 2) / dx, (H - pad * 2) / dy);
+
+    const ox = (W - dx * scale) / 2 - worldMinX * scale;
+    const oy = (H - dy * scale) / 2 + worldMaxY * scale;
+
+    const X = m => ox + m * scale;
+    const Y = m => oy - m * scale;
+
+    /* ---------- Text helper (halo for readability) ---------- */
+    const T = (x, y, s, color, size = 11, anchor = 'middle', weight = 'normal') =>
+        `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" fill="${color}" font-family="Consolas, 'Courier New', monospace" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" stroke="${t.bg}" stroke-width="3.5" paint-order="stroke" stroke-linejoin="round">${s}</text>`;
+
+    /* ---------- Dimension helpers ---------- */
+    const dimH = (xa, xb, yWorld, label, dyText = -8) => {
+        const x1 = X(xa), x2 = X(xb), y = Y(yWorld);
+        return `<g>
+            <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${t.dim}" stroke-width="1" stroke-dasharray="4 2"/>
+            <circle cx="${x1}" cy="${y}" r="2.6" fill="${t.dim}"/>
+            <circle cx="${x2}" cy="${y}" r="2.6" fill="${t.dim}"/>
+            ${T((x1 + x2) / 2, y + dyText, label, t.dim, 11)}
+        </g>`;
+    };
+
+    const dimV = (ya, yb, xWorld, label, dxText = 9) => {
+        const y1 = Y(ya), y2 = Y(yb), x = X(xWorld);
+        return `<g>
+            <line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${t.dim}" stroke-width="1" stroke-dasharray="4 2"/>
+            <circle cx="${x}" cy="${y1}" r="2.6" fill="${t.dim}"/>
+            <circle cx="${x}" cy="${y2}" r="2.6" fill="${t.dim}"/>
+            ${T(x + dxText, (y1 + y2) / 2 + 4, label, t.dim, 11, 'start')}
+        </g>`;
+    };
+
+    /* ---------- Layer polygons (world coords) ---------- */
+    const pccPts = [
+        [-g.cover, 0],
+        [g.innerBase + g.cover, 0],
+        [g.innerBase + g.cover, -g.basePcc],
+        [-g.cover, -g.basePcc]
+    ];
+    const solPts = [
+        [-g.cover, -g.basePcc],
+        [g.innerBase + g.cover, -g.basePcc],
+        [g.innerBase + g.cover, solBottom],
+        [-g.cover, solBottom]
+    ];
+    const wallPts = [
+        [0, 0],
+        [g.innerBase, 0],
+        [g.topRightX, g.H],
+        [g.topLeftX, g.H]
+    ];
+    const capPts = [
+        [g.topLeftX, g.H],
+        [g.topRightX, g.H],
+        [g.topRightX, g.H + g.topPcc],
+        [g.topLeftX, g.H + g.topPcc]
+    ];
+    const earthPts = [
+        [g.innerBase, solBottom],
+        [g.innerBase, 0],
+        [g.topRightX, g.H],
+        [earthRight, g.H],
+        [earthRight, solBottom]
+    ];
+    const frontEarthPts = [
+        [-g.cover - 1.05, 0],
+        [0, 0],
+        [0, solBottom],
+        [-g.cover - 1.05, solBottom]
+    ];
+
+    const toStr = pts => pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' ');
+
+    /* ---------- Build SVG ---------- */
+    const parts = [];
+
+    /* Defs: patterns */
+    parts.push(`
+    <defs>
+        <pattern id="gridMinor" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="${t.gridMinor}" stroke-width="1"/>
+        </pattern>
+        <pattern id="gridMajor" width="100" height="100" patternUnits="userSpaceOnUse">
+            <rect width="100" height="100" fill="url(#gridMinor)"/>
+            <path d="M 100 0 L 0 0 0 100" fill="none" stroke="${t.gridMajor}" stroke-width="1.2"/>
+        </pattern>
+        <pattern id="hatchPcc" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="10" stroke="${t.pcc}" stroke-width="0.9" opacity="0.55"/>
+            <circle cx="5" cy="5" r="0.9" fill="${t.pcc}" opacity="0.6"/>
+        </pattern>
+        <pattern id="hatchRrm" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+            <path d="M0 8 Q4 2 8 8 T16 8" fill="none" stroke="${t.rrm}" stroke-width="1" opacity="0.5"/>
+            <circle cx="4" cy="13" r="1.7" fill="none" stroke="${t.rrm}" stroke-width="0.9" opacity="0.5"/>
+            <circle cx="12" cy="4" r="1.2" fill="none" stroke="${t.rrm}" stroke-width="0.9" opacity="0.5"/>
+        </pattern>
+        <pattern id="hatchSoling" width="14" height="14" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="3" r="1.4" fill="${t.soling}" opacity="0.7"/>
+            <circle cx="10" cy="8" r="1.1" fill="${t.soling}" opacity="0.55"/>
+            <circle cx="6" cy="12" r="0.9" fill="${t.soling}" opacity="0.5"/>
+        </pattern>
+        <pattern id="hatchEarth" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+            <line x1="0" y1="0" x2="0" y2="16" stroke="${t.earth}" stroke-width="0.8" stroke-dasharray="3,6" opacity="0.6"/>
+        </pattern>
+    </defs>`);
+
+    /* Background */
+    parts.push(`<rect width="100%" height="100%" fill="${t.bg}"/>`);
+    if (!printMode) {
+        parts.push(`<rect width="100%" height="100%" fill="url(#gridMajor)" opacity="0.9"/>`);
+    }
+
+    /* Earth (behind wall + small front wedge) */
+    parts.push(`
+        <polygon points="${toStr(earthPts)}" fill="${t.earthFill}" stroke="none"/>
+        <polygon points="${toStr(earthPts)}" fill="url(#hatchEarth)" stroke="none"/>
+        <polygon points="${toStr(frontEarthPts)}" fill="${t.earthFill}" stroke="none"/>
+        <polygon points="${toStr(frontEarthPts)}" fill="url(#hatchEarth)" stroke="none"/>
+    `);
+
+    /* Ground lines */
+    parts.push(`
+        <line x1="${X(g.topRightX)}" y1="${Y(g.H)}" x2="${X(earthRight)}" y2="${Y(g.H)}"
+              stroke="${t.earth}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="${X(-g.cover - 1.05)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(0)}"
+              stroke="${t.earth}" stroke-width="2" stroke-linecap="round"/>
+    `);
+
+    /* Stone soling */
+    parts.push(`
+        <polygon points="${toStr(solPts)}" fill="${t.soling}" fill-opacity="0.10"
+                 stroke="${t.soling}" stroke-width="1.6" stroke-linejoin="round"/>
+        <polygon points="${toStr(solPts)}" fill="url(#hatchSoling)" stroke="none"/>
+        ${T(X((solPts[0][0] + solPts[1][0]) / 2), Y(solBottom + g.soling / 2),
+            `STONE SOLING ${fmt(g.soling)}m`, t.soling, 10)}
+    `);
+
+    /* Base PCC */
+    parts.push(`
+        <polygon points="${toStr(pccPts)}" fill="${t.pcc}" fill-opacity="0.10"
+                 stroke="${t.pcc}" stroke-width="1.6" stroke-linejoin="round"/>
+        <polygon points="${toStr(pccPts)}" fill="url(#hatchPcc)" stroke="none"/>
+        ${T(X((pccPts[0][0] + pccPts[1][0]) / 2), Y(-g.basePcc / 2),
+            `BASE PCC ${fmt(g.basePcc)}m`, t.pcc, 10)}
+    `);
+
+    /* RRM wall body */
+    parts.push(`
+        <polygon points="${toStr(wallPts)}" fill="${t.rrm}" fill-opacity="0.10"
+                 stroke="${t.rrm}" stroke-width="2.2" stroke-linejoin="round"/>
+        <polygon points="${toStr(wallPts)}" fill="url(#hatchRrm)" stroke="none"/>
+        ${T(X((g.topLeftX + g.topRightX) / 2 + 0.15), Y(g.H / 2),
+            `RRM WALL  H=${fmt(g.H)}m`, t.rrm, 13, 'middle', 'bold')}
+    `);
+
+    /* Top PCC cap */
+    if (g.topPcc > 0.001) {
+        parts.push(`
+            <polygon points="${toStr(capPts)}" fill="${t.pcc}" fill-opacity="0.18"
+                     stroke="${t.pcc}" stroke-width="1.6" stroke-linejoin="round"/>
+            <polygon points="${toStr(capPts)}" fill="url(#hatchPcc)" stroke="none"/>
+            ${T(X((g.topLeftX + g.topRightX) / 2), Y(g.H + g.topPcc / 2), `PCC CAP ${fmt(g.topPcc)}m`, t.pcc, 9.5)}
+        `);
+    }
+
+    /* Dimensions */
+    parts.push(dimH(g.topLeftX, g.topRightX, g.H + g.topPcc + 0.22, `TOP = ${fmt(g.topW)} m`, -7));
+    parts.push(dimH(-g.cover, g.innerBase + g.cover, solBottom - 0.30,
+                    `TOTAL BASE B = ${fmt(g.totalBase)} m`, 14));
+    parts.push(dimH(0, g.innerBase, solBottom - 0.62,
+                    `WALL BASE = ${fmt(g.innerBase)} m`, 14));
+    parts.push(dimV(0, g.H, -g.cover - 0.48, `H = ${fmt(g.H)} m`, -8));
+    if (g.frontOffset > 0.001) {
+        parts.push(dimH(0, g.frontOffset, g.H + g.topPcc + 0.62,
+                        `BATTER ${fmt(g.frontOffset)} m`, -6));
+    }
+
+    /* Scale bar */
+    const niceSteps = [0.25, 0.5, 1, 2, 5, 10, 20, 50];
+    const barM = niceSteps.find(v => v * scale >= 70) || niceSteps[niceSteps.length - 1];
+    const barPx = barM * scale;
+    const bx = 24, by = H - 28;
+    parts.push(`
+        <g>
+            <line x1="${bx}" y1="${by}" x2="${bx + barPx}" y2="${by}" stroke="${t.muted}" stroke-width="1.5"/>
+            <line x1="${bx}" y1="${by - 5}" x2="${bx}" y2="${by + 5}" stroke="${t.muted}" stroke-width="1.5"/>
+            <line x1="${bx + barPx}" y1="${by - 5}" x2="${bx + barPx}" y2="${by + 5}" stroke="${t.muted}" stroke-width="1.5"/>
+            ${T(bx + barPx / 2, by - 9, `${barM} m`, t.muted, 10)}
+        </g>
+    `);
+
+    /* Title block */
+    const tbW = 248, tbH = 74;
+    const tbX = W - tbW - 16, tbY = H - tbH - 16;
+    parts.push(`
+        <g>
+            <rect x="${tbX}" y="${tbY}" width="${tbW}" height="${tbH}" rx="5"
+                  fill="${t.panel}" stroke="${t.panelBorder}" stroke-width="1"/>
+            <line x1="${tbX}" y1="${tbY + 22}" x2="${tbX + tbW}" y2="${tbY + 22}"
+                  stroke="${t.panelBorder}" stroke-width="1"/>
+            ${T(tbX + 10, tbY + 15, 'RRM RETAINING WALL — SECTION', t.text, 10, 'start', 'bold')}
+            ${T(tbX + 10, tbY + 36, `H = ${fmt(g.H)} m   B = ${fmt(g.totalBase)} m`, t.muted, 9.5, 'start')}
+            ${T(tbX + 10, tbY + 49, `L = ${fmt(g.L)} m   Batter = ${fmt(g.frontOffset)} m`, t.muted, 9.5, 'start')}
+            ${T(tbX + 10, tbY + 62, `Mortar ${g.rrmRatioLabel} | PCC ${g.pccLabel}`, t.muted, 9.5, 'start')}
+        </g>
+    `);
+
+    svg.innerHTML = parts.join('');
+}
+
+/* ------------------------- CSV Export ------------------------- */
+function exportCSV() {
+    if (!geom.H) return;
+    const g = geom;
+
+    const rows = [
+        ['Item', 'Description', 'Quantity', 'Unit'],
+        ['1', 'RRM Masonry (gross volume)', g.rrmVol.toFixed(3), 'm3'],
+        ['1a', '  - Stone (net)', g.stoneVol.toFixed(3), 'm3'],
+        ['1b', '  - Mortar (wet)', g.mortarVol.toFixed(3), 'm3'],
+        ['2', 'PCC Concrete (total)', g.totalPccVol.toFixed(3), 'm3'],
+        ['2a', '  - Top cap', g.topPccVol.toFixed(3), 'm3'],
+        ['2b', '  - Base slab', g.basePccVol.toFixed(3), 'm3'],
+        ['3', 'Stone Soling', g.solingVol.toFixed(3), 'm3'],
+        ['4', 'Excavation (incl. working space)', g.excavationVol.toFixed(3), 'm3'],
+        ['5', 'Backfill', g.backfillVol.toFixed(3), 'm3'],
+        ['6', 'Cement', String(g.totalCementBags), 'bags (50 kg)'],
+        ['7', 'Sand', g.totalSand.toFixed(3), 'm3'],
+        ['8', 'Coarse Aggregate', g.pccAggVol.toFixed(3), 'm3'],
+        ['9', 'Estimated Structure Weight', g.totalWeight.toFixed(2), 't'],
+        [],
+        ['Design Parameters', '', '', ''],
+        ['Wall Length L', g.L.toFixed(2), '', 'm'],
+        ['Wall Height H', g.H.toFixed(2), '', 'm'],
+        ['Top Width', g.topW.toFixed(2), '', 'm'],
+        ['Wall Base Width', g.innerBase.toFixed(2), '', 'm'],
+        ['Total Base (with cover)', g.totalBase.toFixed(2), '', 'm'],
+        ['RRM Mortar Ratio', g.rrmRatioLabel, '', ''],
+        ['PCC Concrete Grade', g.pccLabel, '', '']
+    ];
+
+    const csv = rows
+        .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+        .join('\r\n');
+
+    downloadBlob('\uFEFF' + csv, `RRM_BOQ_H${g.H.toFixed(1)}m.csv`, 'text/csv;charset=utf-8;');
+}
+
+/* ------------------------- Copy Summary ------------------------- */
+function copySummary() {
+    if (!geom.H) return;
+    const g = geom;
+
+    const text =
+`RRM RETAINING WALL — QUANTITY SUMMARY
+=====================================
+Geometry
+  Length L              : ${g.L.toFixed(2)} m
+  Height H              : ${g.H.toFixed(2)} m
+  Top Width             : ${g.topW.toFixed(2)} m
+  Wall Base Width       : ${g.innerBase.toFixed(2)} m
+  Total Base (w/ cover) : ${g.totalBase.toFixed(2)} m
+  Front Batter Offset   : ${g.frontOffset.toFixed(2)} m
+
+Quantities
+  RRM Masonry           : ${g.rrmVol.toFixed(2)} m³  (stone ${g.stoneVol.toFixed(2)} / mortar ${g.mortarVol.toFixed(2)})
+  PCC Concrete          : ${g.totalPccVol.toFixed(2)} m³  (cap ${g.topPccVol.toFixed(2)} / base ${g.basePccVol.toFixed(2)})
+  Stone Soling          : ${g.solingVol.toFixed(2)} m³
+  Excavation            : ${g.excavationVol.toFixed(2)} m³
+  Backfill              : ${g.backfillVol.toFixed(2)} m³
+  Cement                : ${g.totalCementBags} bags (${g.totalCementBags * 50} kg)
+  Sand                  : ${g.totalSand.toFixed(2)} m³
+  Coarse Aggregate      : ${g.pccAggVol.toFixed(2)} m³
+  Estimated Weight      : ${g.totalWeight.toFixed(2)} t
+
+Mix Specifications
+  RRM Mortar            : ${g.rrmRatioLabel}
+  PCC Concrete          : ${g.pccLabel}`;
+
+    const done = () => {
+        const btn = document.querySelector('button[onclick="copySummary()"]');
+        if (btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            setTimeout(() => { btn.innerHTML = original; }, 1600);
+        }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+        fallbackCopy(text, done);
+    }
+}
+
+function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+    document.body.removeChild(ta);
+}
+
+/* ------------------------- Print ------------------------- */
+function printCalcSheet() {
+    printMode = true;
+    renderCAD();
+    setTimeout(() => window.print(), 60);
+}
+
+window.addEventListener('beforeprint', () => { printMode = true; renderCAD(); });
+window.addEventListener('afterprint', () => { printMode = false; renderCAD(); });
+
+/* ------------------------- Custom ratio visibility ------------------------- */
+function toggleCustomRatio() {
+    const isCustom = $('rrmRatio').value === 'custom';
+    $('rrmCustomWrap').classList.toggle('hidden', !isCustom);
+}
+
+/* ------------------------- Reset ------------------------- */
+function resetDefaults() {
+    Object.entries(DEFAULTS).forEach(([id, val]) => {
+        const el = $(id);
+        if (el) el.value = val;
+    });
+    toggleCustomRatio();
+    calculateGeometry();
+}
+
+/* ------------------------- Bindings ------------------------- */
+function debounce(fn, ms) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), ms);
+    };
+}
+
+document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', calculateGeometry);
+    el.addEventListener('change', calculateGeometry);
+});
+
+$('rrmRatio').addEventListener('change', () => {
+    toggleCustomRatio();
+    calculateGeometry();
+});
+
+window.addEventListener('resize', debounce(renderCAD, 120));
+window.addEventListener('load', () => {
+    toggleCustomRatio();
+    calculateGeometry();
+    // Re-render once layout has settled (fonts / flex sizing)
+    requestAnimationFrame(renderCAD);
+});
+</script>
+</body>
+</html>
