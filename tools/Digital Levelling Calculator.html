@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIVIZ – Digital Levelling Calculator</title>
+<style>
+:root{
+  --navy:#0f2742; --navy2:#16375c;
+  --blue:#1a73e8; --blue-d:#1557b0;
+  --green:#137333; --green-bg:#e6f4ea;
+  --red:#c5221f;   --red-bg:#fce8e6;
+  --line:#dbe2ea;  --bg:#f4f6f9; --grey:#5f6368;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;color:#1f2937;background:var(--bg);-webkit-text-size-adjust:100%;
+}
+h2,h3{margin:0;color:var(--navy);font-weight:600}
+h3{font-size:15px}
+.muted{color:#5f6368;font-size:13px;margin:0}
+.hint{font-size:12px;color:#6b7280;margin:10px 0 0}
+
+/* ---------- header ---------- */
+header{
+  background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;
+  padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{font-size:20px;font-weight:800;letter-spacing:1.5px;border:2px solid rgba(255,255,255,.55);border-radius:6px;padding:2px 8px}
+.brand-txt span{display:block;font-size:13px;font-weight:600;color:#dbe7f5;line-height:1.3}
+.brand-txt small{font-size:10.5px;color:#8fb0d4;letter-spacing:.6px}
+
+/* ---------- tabs ---------- */
+.tabs{
+  position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);
+  display:flex;gap:6px;padding:8px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.tabs::-webkit-scrollbar{height:0}
+.tab-btn{
+  border:1px solid transparent;background:transparent;color:#5f6368;font:inherit;font-weight:600;
+  font-size:13px;padding:8px 15px;border-radius:20px;cursor:pointer;white-space:nowrap;min-height:38px;
+}
+.tab-btn:hover{background:#f0f4f9;color:#243447}
+.tab-btn.active{background:#e8f0fe;color:var(--blue-d);border-color:#c6dafc}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ---------- layout ---------- */
+main{max-width:1180px;margin:0 auto;padding:12px 12px 70px}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,39,66,.04)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.card-head h3{margin:0}
+
+/* ---------- buttons ---------- */
+.btn{
+  background:#fff;border:1px solid #c3cdd8;color:#243447;padding:8px 14px;border-radius:6px;
+  font-size:13px;font-weight:500;cursor:pointer;transition:background .12s,border-color .12s;font-family:inherit;
+  min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn:hover{background:#f0f4f9;border-color:#9fb0c2}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-d);border-color:var(--blue-d)}
+.btn-danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn-danger:hover{background:#a01b19}
+.btn-ghost{background:transparent;color:#cfe0f2;border-color:rgba(255,255,255,.3)}
+.btn-ghost:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.55)}
+.btn-sm{padding:6px 12px;font-size:12.5px;min-height:34px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#31435a;font-weight:500;cursor:pointer;user-select:none;min-height:34px}
+.chk input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+
+/* ---------- forms ---------- */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px 12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--grey);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select{
+  border:1px solid #c8d2dc;border-radius:6px;padding:9px 10px;font-size:14px;
+  font-family:inherit;background:#fff;color:#1f2937;width:100%;min-height:40px;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.13)}
+
+/* ---------- level book table ---------- */
+.table-scroll{
+  overflow-x:auto;overflow-y:visible;border:1px solid var(--line);border-radius:6px;
+  -webkit-overflow-scrolling:touch;position:relative;background:#fff;
+}
+table.lb{border-collapse:separate;border-spacing:0;width:100%;min-width:920px;font-size:13px}
+table.lb th{
+  background:#eaf0f7;color:var(--navy);font-weight:600;padding:10px 8px;font-size:12px;
+  border-bottom:2px solid #c9d5e2;border-right:1px solid var(--line);white-space:nowrap;
+  position:sticky;top:0;z-index:4;
+}
+table.lb th:last-child{border-right:0}
+table.lb td{border-bottom:1px solid var(--line);border-right:1px solid #eef2f6;padding:0;text-align:center}
+table.lb td:last-child{border-right:0}
+table.lb tbody tr:nth-child(even){background:#fafcfe}
+table.lb tbody tr:hover{background:#f2f8ff}
+table.lb tbody tr.has-error{background:#fff5f4}
+
+table.lb th:nth-child(1), table.lb td:nth-child(1){position:sticky;left:0;z-index:3;background:#eaf0f7}
+table.lb td:nth-child(1){background:#fff}
+table.lb tbody tr:nth-child(even) td:nth-child(1){background:#fafcfe}
+table.lb tbody tr:hover td:nth-child(1){background:#f2f8ff}
+
+table.lb th:nth-child(2), table.lb td:nth-child(2){position:sticky;left:45px;z-index:3;background:#eaf0f7}
+table.lb td:nth-child(2){background:#fff}
+table.lb tbody tr:nth-child(even) td:nth-child(2){background:#fafcfe}
+table.lb tbody tr:hover td:nth-child(2){background:#f2f8ff}
+
+table.lb input.cell{
+  width:100%;border:0;background:transparent;padding:10px 8px;font:inherit;text-align:center;
+  outline:none;color:#1f2937;border-radius:3px;min-height:40px;
+}
+table.lb input.cell:focus{background:#fffbe6;box-shadow:inset 0 0 0 2px var(--blue)}
+table.lb input.cell.invalid{background:var(--red-bg);box-shadow:inset 0 0 0 1px var(--red)}
+table.lb td.sn{width:45px;color:#7b8794;font-size:12px;font-weight:600}
+table.lb td.calc{padding:10px 8px;font-variant-numeric:tabular-nums;background:#f7f9fb;min-width:84px;color:#374151}
+table.lb td.c-rl{background:#eaf3ff;font-weight:700;color:var(--navy)}
+table.lb td.c-hi{background:#f0faf6;color:#0b6b52}
+table.lb td.act{width:50px;padding:4px}
+table.lb td:nth-child(2) input{min-width:110px;text-align:left;font-weight:500}
+table.lb td:nth-child(3) input{min-width:85px}
+table.lb td:nth-child(4) input,
+table.lb td:nth-child(5) input,
+table.lb td:nth-child(6) input{min-width:75px}
+table.lb td:nth-child(9) input{min-width:120px;text-align:left}
+table.lb tfoot td{
+  background:#eef3f9;font-weight:700;padding:10px 8px;color:var(--navy);
+  border-top:2px solid #c9d5e2;font-variant-numeric:tabular-nums;
+  position:sticky;bottom:0;z-index:2;
+}
+.tf-label{text-align:right !important;padding-right:12px !important;font-size:12.5px}
+
+.icon-btn{
+  border:1px solid #cfd8e2;background:#fff;border-radius:6px;width:34px;height:34px;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:14px;color:#31435a;padding:0;margin:auto;line-height:1;
+}
+.icon-btn:hover{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.icon-btn:disabled{opacity:.35;cursor:not-allowed}
+.icon-btn:disabled:hover{background:#fff;border-color:#cfd8e2;color:#31435a}
+
+/* ---------- banners ---------- */
+.banner{border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;font-weight:600}
+.banner.warn{background:#fef7e0;color:#8a5d00;border:1px solid #f2dfa6}
+.banner.ok{background:var(--green-bg);color:var(--green);border:1px solid #b7e1c4}
+.banner.err{background:var(--red-bg);color:var(--red);border:1px solid #f5c3c0}
+.banner ul{margin:6px 0 0 18px;padding:0;font-weight:500}
+.banner li{margin:2px 0}
+.swipe-hint{display:none;font-size:11.5px;color:#6b7280;margin:2px 0 10px;font-style:italic}
+
+/* ---------- section chart ---------- */
+.chart-wrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+#svg-section{width:100%;line-height:0}
+.section-svg{display:block;width:100%;height:auto;font-family:inherit;touch-action:manipulation}
+.section-svg circle.hit{cursor:pointer}
+
+.svg-tip{
+  position:absolute;z-index:20;pointer-events:none;
+  background:rgba(15,39,66,.96);color:#fff;border-radius:8px;padding:9px 11px;
+  font-size:12px;line-height:1.5;box-shadow:0 8px 22px rgba(15,39,66,.28);
+  transform:translate(-50%,calc(-100% - 12px));min-width:140px;
+}
+.svg-tip.below{transform:translate(-50%,14px)}
+.svg-tip[hidden]{display:none}
+.svg-tip .tt-title{font-weight:700;margin-bottom:4px;font-size:12.5px}
+.svg-tip .tt-row{display:flex;justify-content:space-between;gap:18px;font-variant-numeric:tabular-nums}
+.svg-tip .tt-key{color:#9fc0e3}
+.svg-tip .tt-rem{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18);color:#d7e5f5;font-size:11.5px;max-width:230px;white-space:normal}
+.svg-tip .tt-hint{margin-top:5px;font-size:10.5px;color:#8fb0d4}
+
+/* ---------- point detail card ---------- */
+.pt-detail{margin-top:12px}
+.pt-card{border:1px solid #c6dafc;background:#f4f9ff;border-radius:10px;padding:12px 14px}
+.pt-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.pt-tag{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--grey);font-weight:700}
+.pt-title{font-size:15px;color:var(--navy)}
+.pt-actions{display:flex;gap:6px}
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px 14px}
+.pt-grid span{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--grey);font-weight:700}
+.pt-grid b{font-size:14px;color:#1f2937;font-variant-numeric:tabular-nums}
+.pt-grid b.up{color:var(--green)}
+.pt-grid b.down{color:var(--red)}
+.pt-remarks{margin-top:10px;padding-top:9px;border-top:1px dashed #c6dafc;font-size:12.5px;color:#31435a}
+
+/* ---------- mini tables ---------- */
+.table-wrap{overflow-x:auto}
+table.mini{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+table.mini th{background:#eef3f9;color:var(--navy);font-weight:600;padding:8px 10px;text-align:left;border-bottom:2px solid #c9d5e2;font-size:12px;white-space:nowrap}
+table.mini td{padding:8px 10px;border-bottom:1px solid #eef2f6;font-variant-numeric:tabular-nums}
+table.mini tr:nth-child(even) td{background:#fafcfe}
+table.mini td.num,table.mini th.num{text-align:right}
+table.mini tfoot td{background:#eef3f9;border-top:2px solid #c9d5e2;font-weight:700;color:var(--navy)}
+.mini-btn{width:28px;height:28px;font-size:13px}
+.mini-btn:hover{background:#e8f0fe;border-color:var(--blue);color:var(--blue-d)}
+
+/* ---------- stats ---------- */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:#f7f9fc;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stat span{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--grey);font-weight:700}
+.stat b{display:block;font-size:18px;color:var(--navy);font-variant-numeric:tabular-nums;margin-top:2px}
+.stat.ok b{color:var(--green)}
+.stat.bad b{color:var(--red)}
+
+/* ---------- report ---------- */
+.report{background:#fff;color:#1f2937}
+.report-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:14px;flex-wrap:wrap;
+}
+.report-brand{font-size:20px;font-weight:800;letter-spacing:2px;color:var(--navy)}
+.report-head h2{font-size:18px;margin:2px 0 0;color:var(--navy)}
+.report-head .sub{font-size:12px;color:var(--grey);margin-top:2px}
+.report-meta div{text-align:right;font-size:12px;color:var(--grey)}
+.report-meta b{display:block;color:#1f2937;font-size:13px}
+.report h3{
+  font-size:12.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--navy);
+  margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line);
+}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0 20px;font-size:12.5px}
+.meta-grid div{display:flex;gap:8px;border-bottom:1px dotted #dbe2ea;padding:6px 0}
+.meta-grid span{color:var(--grey);min-width:82px;font-weight:600}
+.meta-grid b{color:#1f2937;font-weight:600}
+.report-chart{margin-top:4px}
+.report-chart svg{width:100%;height:auto;border:1px solid var(--line);border-radius:6px}
+.sign-row{display:flex;gap:40px;margin-top:34px;flex-wrap:wrap}
+.sign-row div{flex:1;min-width:150px;border-top:1px solid #9fb0c2;padding-top:6px;font-size:12px;color:var(--grey);text-align:center}
+
+/* ---------- print ---------- */
+@media print{
+  @page{size:A4 portrait;margin:12mm}
+  html,body{background:#fff !important;font-size:11px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  header,.tabs,.no-print,.banner.warn,.swipe-hint{display:none !important}
+  main{max-width:none;padding:0;margin:0}
+  .tab-panel{display:none !important}
+  .tab-panel.active{display:block !important}
+  .card{border:0;box-shadow:none;padding:0;margin:0 0 8px;border-radius:0}
+  table.mini{font-size:10px}
+  table.mini th,table.mini td{padding:4px 6px}
+  .report h3{margin:12px 0 6px}
+  .stat-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+  .stat b{font-size:14px}
+  .sign-row{margin-top:22px}
+}
+
+@media(max-width:768px){
+  .swipe-hint{display:block}
+  header{padding:10px 12px}
+  .actions{width:100%;justify-content:flex-start}
+  .brand-txt span{font-size:12px}
+  main{padding:8px 8px 60px}
+  .card{padding:10px 12px}
+  .field input,.field select,table.lb input.cell{font-size:16px !important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">CIVIZ</div>
+    <div class="brand-txt">
+      <span>Digital Levelling Calculator</span>
+      <small>HI Method · L-Section · Report</small>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-sm btn-ghost" id="btn-sample">Load Sample</button>
+    <button class="btn btn-sm btn-ghost" id="btn-csv">Export CSV</button>
+    <button class="btn btn-sm btn-primary" id="btn-pdf">Print / PDF</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="book">Level Book</button>
+  <button class="tab-btn" data-tab="section">L-Section</button>
+  <button class="tab-btn" data-tab="rl">Reduced Levels</button>
+  <button class="tab-btn" data-tab="check">Arithmetic Check</button>
+  <button class="tab-btn" data-tab="report">Report</button>
+</nav>
+
+<main>
+
+  <!-- ================= LEVEL BOOK ================= -->
+  <section id="tab-book" class="tab-panel active">
+
+    <div class="card">
+      <h3>Project Details</h3>
+      <div class="form-grid" style="margin-top:10px">
+        <div class="field"><label>Project Name</label><input id="p-name" type="text" placeholder="e.g. Road Survey"></div>
+        <div class="field"><label>Survey Date</label><input id="p-date" type="date"></div>
+        <div class="field"><label>Surveyor</label><input id="p-surveyor" type="text" placeholder="Name"></div>
+        <div class="field"><label>Benchmark ID</label><input id="p-bmid" type="text" placeholder="BM-01"></div>
+        <div class="field"><label>Benchmark RL (m)</label><input id="p-bmrl" type="text" inputmode="decimal" placeholder="100.000"></div>
+        <div class="field"><label>Precision</label>
+          <select id="precision">
+            <option value="2">2 decimals</option>
+            <option value="3" selected>3 decimals</option>
+            <option value="4">4 decimals</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Level Book — Staff Readings</h3>
+        <div class="actions">
+          <button class="btn btn-sm" id="btn-add">+ Add Row</button>
+          <button class="btn btn-sm btn-danger" id="btn-clear">Clear All</button>
+        </div>
+      </div>
+
+      <div class="swipe-hint">👉 Swipe the table horizontally to view and edit all reading columns.</div>
+      <div id="alert-box"></div>
+
+      <div class="table-scroll">
+        <table class="lb" id="lb">
+          <thead>
+            <tr>
+              <th>S.N.</th><th>Station</th><th>Chainage (m)</th>
+              <th>BS (m)</th><th>IS (m)</th><th>FS (m)</th>
+              <th>HI (m)</th><th>RL (m)</th><th>Remarks</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="tf-label">Σ TOTALS</td>
+              <td id="tf-bs">—</td>
+              <td id="tf-is">—</td>
+              <td id="tf-fs">—</td>
+              <td id="tf-hi">—</td>
+              <td id="tf-rl">—</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="hint">Height of Instrument method: <b>RL = HI − FS (or IS)</b>, and a new <b>HI = RL + BS</b> at every change point.</p>
+    </div>
+  </section>
+
+  <!-- ================= L-SECTION ================= -->
+  <section id="tab-section" class="tab-panel">
+    <div class="card">
+      <div class="card-head">
+        <h3>Longitudinal Section — Existing Ground</h3>
+        <div class="actions">
+          <label class="chk"><input type="checkbox" id="opt-labels" checked> Station labels</label>
+          <label class="chk"><input type="checkbox" id="opt-grid" checked> Grid lines</label>
+          <button class="btn btn-sm" id="btn-svg">Download SVG</button>
+        </div>
+      </div>
+
+      <div class="stat-grid" id="section-stats"></div>
+
+      <div class="chart-wrap" id="section-wrap">
+        <div id="svg-section"></div>
+        <div class="svg-tip" id="svg-tip" hidden></div>
+      </div>
+
+      <p class="hint">👉 Hover or tap any point to read its <b>chainage</b> and <b>reduced level</b>. Clicking pins the point and draws guide lines; use ‹ › to step along the section.</p>
+
+      <div class="pt-detail" id="pt-detail"></div>
+    </div>
+  </section>
+
+  <!-- ================= REDUCED LEVELS ================= -->
+  <section id="tab-rl" class="tab-panel">
+    <div class="card">
+      <h3>Reduced Levels — Existing Ground</h3>
+      <div id="rl-table" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- ================= ARITHMETIC CHECK ================= -->
+  <section id="tab-check" class="tab-panel">
+    <div class="card">
+      <h3>Arithmetic Check</h3>
+      <div id="check-table" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- ================= REPORT ================= -->
+  <section id="tab-report" class="tab-panel">
+    <div class="card">
+      <div class="card-head no-print">
+        <h3>Report Preview</h3>
+        <div class="actions">
+          <button class="btn btn-sm btn-primary" id="btn-print">Print / Save as PDF</button>
+        </div>
+      </div>
+      <div id="report-body"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================
+   Helpers
+   ========================================================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+const STORAGE_KEY = 'civiz.mobile.v2';
+const META_IDS = ['p-name','p-date','p-surveyor','p-bmid','p-bmrl','precision'];
+
+const state = { rows: [], last: null, selectedRow: null, sectionPts: [] };
+
+function num(v){
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if (s === '') return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+function prec(){ return Number($('#precision').value) || 3; }
+function fmt(v, p){
+  return (v === null || v === undefined || !Number.isFinite(v)) ? '—' : v.toFixed(p);
+}
+function esc(v){
+  return String(v === null || v === undefined ? '' : v)
+    .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function blankRow(){ return { station:'', chainage:'', bs:'', is:'', fs:'', remarks:'' }; }
+function fmtDate(s){
+  if (!s) return '—';
+  const d = new Date(s + 'T00:00:00');
+  if (isNaN(d.getTime())) return s;
+  return d.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
+}
+function getMeta(){
+  return {
+    name: $('#p-name').value.trim(),
+    date: $('#p-date').value,
+    surveyor: $('#p-surveyor').value.trim(),
+    bmid: $('#p-bmid').value.trim(),
+    bmrl: num($('#p-bmrl').value),
+    precision: prec()
+  };
+}
+
+/* =========================================================
+   Computation (Height of Instrument method)
+   ========================================================= */
+function compute(){
+  const bm = num($('#p-bmrl').value);
+  const rows = state.rows;
+  const out = [];
+  let hi = null, sumBS = 0, sumIS = 0, sumFS = 0, setups = 0;
+
+  rows.forEach((r, i) => {
+    const bs = num(r.bs), is = num(r.is), fs = num(r.fs);
+    const o = { hi: null, rl: null, err: '' };
+
+    if (bs !== null) sumBS += bs;
+    if (is !== null) sumIS += is;
+    if (fs !== null) sumFS += fs;
+
+    const nRead = (bs !== null) + (is !== null) + (fs !== null);
+    if (nRead > 1) o.err = 'Only one of BS / IS / FS may be entered per row.';
+
+    if (i === 0){
+      if (bm === null){
+        o.err = 'Benchmark RL is required to start the level book.';
+      } else if (bs === null){
+        o.err = o.err || 'The first row must carry a Back Sight (BS).';
+      } else {
+        o.rl = bm;
+        hi = bm + bs;
+        o.hi = hi;
+        setups++;
+      }
+      out.push(o);
+      return;
+    }
+
+    if (hi === null){
+      if (nRead > 0) o.err = o.err || 'No instrument height available — check the earlier rows.';
+      out.push(o);
+      return;
+    }
+
+    let rl = null;
+    if (fs !== null) rl = hi - fs;
+    else if (is !== null) rl = hi - is;
+    o.rl = rl;
+
+    if (bs !== null){
+      if (rl !== null){
+        hi = rl + bs;
+        o.hi = hi;
+        setups++;
+      } else if (!o.err){
+        o.err = 'A Back Sight needs an FS or IS on the same row to compute the RL.';
+      }
+    } else {
+      o.hi = hi;
+    }
+    out.push(o);
+  });
+
+  let firstRL = null, lastRL = null;
+  out.forEach(o => {
+    if (o.rl === null) return;
+    if (firstRL === null) firstRL = o.rl;
+    lastRL = o.rl;
+  });
+
+  const lhs  = sumBS - sumFS;
+  const rhs  = (firstRL !== null && lastRL !== null) ? (lastRL - firstRL) : null;
+  const diff = (rhs !== null) ? (lhs - rhs) : null;
+  const tol  = Math.pow(10, -prec());
+
+  return { rows: out, sumBS, sumIS, sumFS, firstRL, lastRL, setups, lhs, rhs, diff, tol };
+}
+
+function checkPassed(c){
+  return c.diff !== null && Math.abs(c.diff) <= c.tol + 1e-9;
+}
+
+/* =========================================================
+   Level book table
+   ========================================================= */
+function rowHTML(r, i){
+  return `<tr data-i="${i}">
+    <td class="sn">${i + 1}</td>
+    <td><input class="cell" data-i="${i}" data-k="station" type="text" value="${esc(r.station)}" placeholder="Station" autocomplete="off"></td>
+    <td><input class="cell" data-i="${i}" data-k="chainage" type="text" inputmode="decimal" value="${esc(r.chainage)}" placeholder="0.00" autocomplete="off"></td>
+    <td><input class="cell" data-i="${i}" data-k="bs" type="text" inputmode="decimal" value="${esc(r.bs)}" placeholder="—" autocomplete="off"></td>
+    <td><input class="cell" data-i="${i}" data-k="is" type="text" inputmode="decimal" value="${esc(r.is)}" placeholder="—" autocomplete="off"></td>
+    <td><input class="cell" data-i="${i}" data-k="fs" type="text" inputmode="decimal" value="${esc(r.fs)}" placeholder="—" autocomplete="off"></td>
+    <td class="calc c-hi">—</td>
+    <td class="calc c-rl">—</td>
+    <td><input class="cell" data-i="${i}" data-k="remarks" type="text" value="${esc(r.remarks)}" placeholder="Remarks" autocomplete="off"></td>
+    <td class="act"><button class="icon-btn" data-del="${i}" title="Delete row" aria-label="Delete row">✕</button></td>
+  </tr>`;
+}
+
+function renderRows(){
+  $('#tbody').innerHTML = state.rows.map(rowHTML).join('');
+}
+
+/* =========================================================
+   Main refresh
+   ========================================================= */
+function updateAll(){
+  if (state.selectedRow !== null && state.selectedRow >= state.rows.length) state.selectedRow = null;
+
+  const c = compute();
+  const p = prec();
+  state.last = c;
+
+  $$('#tbody tr').forEach((tr, i) => {
+    const o = c.rows[i];
+    if (!o) return;
+    tr.querySelector('.c-hi').textContent = o.hi !== null ? o.hi.toFixed(p) : '—';
+    tr.querySelector('.c-rl').textContent = o.rl !== null ? o.rl.toFixed(p) : '—';
+    tr.classList.toggle('has-error', !!o.err);
+    tr.querySelectorAll('input.cell').forEach(inp => {
+      const isReading = ['bs','is','fs'].includes(inp.dataset.k);
+      inp.classList.toggle('invalid', !!o.err && isReading);
+    });
+  });
+
+  $('#tf-bs').textContent = fmt(c.sumBS, p);
+  $('#tf-is').textContent = fmt(c.sumIS, p);
+  $('#tf-fs').textContent = fmt(c.sumFS, p);
+  $('#tf-hi').textContent = c.setups + (c.setups === 1 ? ' setup' : ' setups');
+  $('#tf-rl').textContent = fmt(c.lastRL, p);
+
+  renderMessages(c);
+  renderRL(c);
+  renderCheck(c);
+  renderSection();
+  if ($('#tab-report').classList.contains('active')) renderReport();
+
+  saveStateSoon();
+}
+
+/* =========================================================
+   Messages
+   ========================================================= */
+function renderMessages(c){
+  const errs = [];
+  c.rows.forEach((o, i) => {
+    if (!o.err) return;
+    const st = state.rows[i].station ? ' (' + esc(state.rows[i].station) + ')' : '';
+    errs.push(`Row ${i + 1}${st}: ${esc(o.err)}`);
+  });
+
+  const missingCh = state.rows.filter((r, i) => c.rows[i] && c.rows[i].rl !== null && num(r.chainage) === null).length;
+
+  let html = '';
+  if (errs.length){
+    html += `<div class="banner err"><b>${errs.length} issue${errs.length > 1 ? 's' : ''} found</b>
+      <ul>${errs.slice(0, 6).map(e => `<li>${e}</li>`).join('')}</ul>
+      ${errs.length > 6 ? `<div style="font-weight:500;margin-top:4px">…and ${errs.length - 6} more.</div>` : ''}</div>`;
+  }
+  if (missingCh){
+    html += `<div class="banner warn">${missingCh} row(s) have a reduced level but no chainage — they will not be plotted on the L-Section.</div>`;
+  }
+  $('#alert-box').innerHTML = html;
+}
+
+/* =========================================================
+   Reduced levels table
+   ========================================================= */
+function rlTableHTML(c, p, interactive){
+  if (!state.rows.length) return '<p class="muted">No reduced levels calculated.</p>';
+  let body = '';
+  c.rows.forEach((o, i) => {
+    const r = state.rows[i];
+    const ch = num(r.chainage);
+    const hasPt = ch !== null && o.rl !== null;
+    const btn = interactive
+      ? `<td style="width:46px">${hasPt ? `<button class="icon-btn mini-btn" data-sel="${i}" title="Show on L-Section" aria-label="Show on L-Section">◎</button>` : ''}</td>`
+      : '';
+    body += `<tr>
+      <td class="num">${i + 1}</td>
+      <td>${esc(r.station || '—')}</td>
+      <td class="num">${ch !== null ? ch.toFixed(2) : '—'}</td>
+      <td class="num"><b>${fmt(o.rl, p)}</b></td>
+      <td class="num">${fmt(o.hi, p)}</td>
+      <td>${esc(r.remarks || '')}</td>
+      ${btn}
+    </tr>`;
+  });
+  const headBtn = interactive ? '<th></th>' : '';
+  return `<div class="table-wrap"><table class="mini">
+    <thead><tr>
+      <th class="num">#</th><th>Station</th><th class="num">Chainage (m)</th>
+      <th class="num">RL (m)</th><th class="num">HI (m)</th><th>Remarks</th>${headBtn}
+    </tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function renderRL(c){
+  $('#rl-table').innerHTML = rlTableHTML(c, prec(), true);
+}
+
+/* =========================================================
+   Arithmetic check
+   ========================================================= */
+function renderCheck(c){
+  const p = prec();
+  const ok = checkPassed(c);
+
+  const statusHTML = c.diff === null
+    ? '<div class="banner warn">Enter a Benchmark RL, a first BS and a closing FS to run the arithmetic check.</div>'
+    : (ok
+        ? `<div class="banner ok">✔ Arithmetic check satisfied — (ΣBS − ΣFS) equals (Last RL − First RL) within ±${c.tol.toFixed(p)} m.</div>`
+        : `<div class="banner err">✖ Arithmetic check failed — difference of ${fmt(c.diff, p)} m exceeds the tolerance of ±${c.tol.toFixed(p)} m.</div>`);
+
+  $('#check-table').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat"><span>Σ Back Sights</span><b>${fmt(c.sumBS, p)}</b></div>
+      <div class="stat"><span>Σ Fore Sights</span><b>${fmt(c.sumFS, p)}</b></div>
+      <div class="stat"><span>ΣBS − ΣFS</span><b>${fmt(c.lhs, p)}</b></div>
+      <div class="stat"><span>Last RL − First RL</span><b>${fmt(c.rhs, p)}</b></div>
+      <div class="stat ${c.diff === null ? '' : (ok ? 'ok' : 'bad')}"><span>Difference</span><b>${fmt(c.diff, p)}</b></div>
+      <div class="stat"><span>Instrument Setups</span><b>${c.setups}</b></div>
+    </div>
+    ${statusHTML}`;
+}
+
+/* =========================================================
+   SVG Longitudinal Section (self-contained, interactive)
+   ========================================================= */
+function niceTicks(min, max, count){
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return [];
+  const span = max - min;
+  const raw = span / Math.max(1, count);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  const mult = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10;
+  const step = mult * mag;
+  const start = Math.ceil(min / step) * step;
+  const out = [];
+  for (let i = 0; i < 300; i++){
+    const v = start + i * step;
+    if (v > max + step * 1e-6) break;
+    out.push(Number(v.toFixed(10)));
+  }
+  return out;
+}
+function tickDecimals(step){
+  if (!(step > 0)) return 0;
+  const d = -Math.floor(Math.log10(step));
+  return Math.max(0, Math.min(4, d));
+}
+function nz(v){ return Math.abs(v) < 1e-9 ? 0 : v; }
+
+/* Build the plotted point list (sorted by chainage) */
+function sectionPoints(){
+  const c = state.last;
+  if (!c) return [];
+  const pts = [];
+  c.rows.forEach((o, i) => {
+    const ch = num(state.rows[i].chainage);
+    if (ch === null || o.rl === null) return;
+    pts.push({
+      x: ch,
+      y: o.rl,
+      label: state.rows[i].station || ('S' + (i + 1)),
+      rowIndex: i,
+      hi: o.hi,
+      remarks: state.rows[i].remarks || ''
+    });
+  });
+  pts.sort((a, b) => a.x - b.x);
+
+  pts.forEach((pt, k) => {
+    if (k === 0){
+      pt.dCh = null; pt.dRl = null; pt.grade = null;
+    } else {
+      const prev = pts[k - 1];
+      pt.dCh = pt.x - prev.x;
+      pt.dRl = pt.y - prev.y;
+      pt.grade = pt.dCh !== 0 ? (pt.dRl / pt.dCh) * 100 : null;
+    }
+  });
+  return pts;
+}
+
+function sectionSVG(pts, opts){
+  opts = opts || {};
+  const showLabels  = opts.labels !== false;
+  const showGrid    = opts.grid !== false;
+  const interactive = !!opts.interactive;
+  const p           = opts.precision !== undefined ? opts.precision : prec();
+  const uid         = opts.uid || 'a';
+  const selRow      = (opts.selectedRow === undefined || opts.selectedRow === null) ? null : opts.selectedRow;
+
+  const W = 960, H = 430;
+  const M = { l: 86, r: 30, t: 34, b: 68 };
+  const IW = W - M.l - M.r;
+  const IH = H - M.t - M.b;
+
+  const open = `<svg class="section-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Longitudinal section of existing ground">`;
+
+  if (!pts || !pts.length){
+    return open + `
+      <rect width="${W}" height="${H}" fill="#ffffff"/>
+      <rect x="${M.l}" y="${M.t}" width="${IW}" height="${IH}" fill="#fafcfe" stroke="#dbe2ea"/>
+      <text x="${W / 2}" y="${H / 2 - 8}" text-anchor="middle" font-size="16" font-weight="600" fill="#5f6368" font-family="inherit">No section data yet</text>
+      <text x="${W / 2}" y="${H / 2 + 16}" text-anchor="middle" font-size="13" fill="#8a949e" font-family="inherit">Enter chainage, BS / IS / FS readings and a Benchmark RL.</text>
+    </svg>`;
+  }
+
+  /* ---- domains ---- */
+  const xs = pts.map(d => d.x), ys = pts.map(d => d.y);
+  let x0 = Math.min(...xs), x1 = Math.max(...xs);
+  let y0 = Math.min(...ys), y1 = Math.max(...ys);
+  if (x0 === x1){ x0 -= 1; x1 += 1; }
+  if (y0 === y1){ y0 -= 0.5; y1 += 0.5; }
+  y0 -= (y1 - y0) * 0.10;
+  y1 += (y1 - y0) * 0.10;
+
+  const xTicks = niceTicks(x0, x1, 7);
+  const yTicks = niceTicks(y0, y1, 6);
+  if (xTicks.length){ x0 = Math.min(x0, xTicks[0]); x1 = Math.max(x1, xTicks[xTicks.length - 1]); }
+  if (yTicks.length){ y0 = Math.min(y0, yTicks[0]); y1 = Math.max(y1, yTicks[yTicks.length - 1]); }
+
+  const SX = x => M.l + ((x - x0) / (x1 - x0)) * IW;
+  const SY = y => M.t + IH - ((y - y0) / (y1 - y0)) * IH;
+
+  const xStep = xTicks.length > 1 ? Math.abs(xTicks[1] - xTicks[0]) : 1;
+  const yStep = yTicks.length > 1 ? Math.abs(yTicks[1] - yTicks[0]) : 1;
+  const xd = tickDecimals(xStep), yd = tickDecimals(yStep);
+
+  /* selected point */
+  let selK = -1;
+  if (selRow !== null){
+    for (let k = 0; k < pts.length; k++){ if (pts[k].rowIndex === selRow){ selK = k; break; } }
+  }
+
+  let s = '';
+
+  /* defs */
+  s += `<defs>
+    <linearGradient id="g-${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a73e8" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#1a73e8" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>`;
+
+  /* plot background */
+  s += `<rect x="${M.l}" y="${M.t}" width="${IW}" height="${IH}" fill="#ffffff"/>`;
+
+  /* grid */
+  if (showGrid){
+    xTicks.forEach(v => {
+      const x = SX(v).toFixed(1);
+      s += `<line x1="${x}" y1="${M.t}" x2="${x}" y2="${M.t + IH}" stroke="#eef2f6" stroke-width="1"/>`;
+    });
+    yTicks.forEach(v => {
+      const y = SY(v).toFixed(1);
+      s += `<line x1="${M.l}" y1="${y}" x2="${M.l + IW}" y2="${y}" stroke="#eef2f6" stroke-width="1"/>`;
+    });
+  }
+
+  /* benchmark reference line */
+  if (opts.bm !== undefined && opts.bm !== null && Number.isFinite(opts.bm) && opts.bm > y0 && opts.bm < y1){
+    const by = SY(opts.bm);
+    s += `<line x1="${M.l}" y1="${by.toFixed(1)}" x2="${M.l + IW}" y2="${by.toFixed(1)}"
+            stroke="#137333" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.8"/>
+          <text x="${(M.l + 8).toFixed(1)}" y="${(by - 6).toFixed(1)}" font-size="10.5" font-weight="600"
+            fill="#137333" font-family="inherit">BM RL ${opts.bm.toFixed(p)}</text>`;
+  }
+
+  /* profile */
+  const line = pts.map((d, i) => `${i ? 'L' : 'M'}${SX(d.x).toFixed(1)},${SY(d.y).toFixed(1)}`).join(' ');
+  const baseY = (M.t + IH).toFixed(1);
+  const area  = `${line} L${SX(pts[pts.length - 1].x).toFixed(1)},${baseY} L${SX(pts[0].x).toFixed(1)},${baseY} Z`;
+
+  s += `<path d="${area}" fill="url(#g-${uid})" stroke="none"/>`;
+  s += `<path d="${line}" fill="none" stroke="#1a73e8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  /* ---- guide lines for the pinned point ---- */
+  let selX = null, selY = null;
+  if (selK >= 0){
+    const d = pts[selK];
+    selX = SX(d.x); selY = SY(d.y);
+    s += `<line x1="${selX.toFixed(1)}" y1="${M.t}" x2="${selX.toFixed(1)}" y2="${M.t + IH}"
+            stroke="#1a73e8" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.55"/>`;
+    s += `<line x1="${M.l}" y1="${selY.toFixed(1)}" x2="${M.l + IW}" y2="${selY.toFixed(1)}"
+            stroke="#1a73e8" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.55"/>`;
+  }
+
+  /* points + labels */
+  pts.forEach((d, k) => {
+    const cx = SX(d.x), cy = SY(d.y);
+    s += `<circle data-pt="${k}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.2"
+            fill="#ffffff" stroke="#1a73e8" stroke-width="2"/>`;
+    if (showLabels){
+      const above = (cy - M.t) > 26;
+      const ty = above ? cy - 11 : cy + 18;
+      s += `<text x="${cx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" font-size="10.5"
+              fill="#31435a" font-family="inherit" font-weight="600">${esc(d.label)}</text>`;
+    }
+  });
+
+  /* pinned point ring */
+  if (selK >= 0){
+    s += `<circle cx="${selX.toFixed(1)}" cy="${selY.toFixed(1)}" r="10" fill="none"
+            stroke="#1a73e8" stroke-width="2" opacity="0.5"/>`;
+    s += `<circle cx="${selX.toFixed(1)}" cy="${selY.toFixed(1)}" r="5.6" fill="#1a73e8"
+            stroke="#ffffff" stroke-width="2"/>`;
+  }
+
+  /* plot border */
+  s += `<rect x="${M.l}" y="${M.t}" width="${IW}" height="${IH}" fill="none" stroke="#c9d5e2" stroke-width="1"/>`;
+
+  /* x ticks */
+  xTicks.forEach(v => {
+    const x = SX(v);
+    s += `<line x1="${x.toFixed(1)}" y1="${M.t + IH}" x2="${x.toFixed(1)}" y2="${M.t + IH + 5}" stroke="#9fb0c2"/>`;
+    s += `<text x="${x.toFixed(1)}" y="${M.t + IH + 20}" text-anchor="middle" font-size="11" fill="#5f6368" font-family="inherit">${nz(v).toFixed(xd)}</text>`;
+  });
+
+  /* y ticks */
+  yTicks.forEach(v => {
+    const y = SY(v);
+    s += `<line x1="${M.l - 5}" y1="${y.toFixed(1)}" x2="${M.l}" y2="${y.toFixed(1)}" stroke="#9fb0c2"/>`;
+    s += `<text x="${M.l - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#5f6368" font-family="inherit">${nz(v).toFixed(yd)}</text>`;
+  });
+
+  /* axis titles */
+  s += `<text x="${M.l + IW / 2}" y="${H - 20}" text-anchor="middle" font-size="12" font-weight="600"
+          fill="#31435a" font-family="inherit">Chainage (m)</text>`;
+  s += `<text transform="rotate(-90 22 ${M.t + IH / 2})" x="22" y="${M.t + IH / 2}" text-anchor="middle"
+          font-size="12" font-weight="600" fill="#31435a" font-family="inherit">Reduced Level (m)</text>`;
+
+  /* value chips for the pinned point (drawn on top of the axis labels) */
+  if (selK >= 0){
+    const d = pts[selK];
+    const xText = d.x.toFixed(2);
+    const yText = nz(d.y).toFixed(p);
+
+    const xW = Math.max(58, xText.length * 6.8 + 18);
+    s += `<rect x="${(selX - xW / 2).toFixed(1)}" y="${M.t + IH + 7}" width="${xW.toFixed(1)}" height="18" rx="4" fill="#1a73e8"/>`;
+    s += `<text x="${selX.toFixed(1)}" y="${M.t + IH + 20}" text-anchor="middle" font-size="10.5" font-weight="700"
+            fill="#ffffff" font-family="inherit">${xText}</text>`;
+
+    const yW = Math.max(50, yText.length * 6.8 + 14);
+    const yChipX = Math.max(2, M.l - 10 - yW);
+    s += `<rect x="${yChipX.toFixed(1)}" y="${(selY - 9).toFixed(1)}" width="${yW.toFixed(1)}" height="18" rx="4" fill="#1a73e8"/>`;
+    s += `<text x="${(yChipX + yW / 2).toFixed(1)}" y="${(selY + 4).toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="700"
+            fill="#ffffff" font-family="inherit">${yText}</text>`;
+  }
+
+  /* hit targets (transparent, on top) */
+  if (interactive){
+    pts.forEach((d, k) => {
+      s += `<circle class="hit" data-k="${k}" cx="${SX(d.x).toFixed(1)}" cy="${SY(d.y).toFixed(1)}"
+              r="17" fill="transparent" stroke="none"/>`;
+    });
+  }
+
+  return open + s + '</svg>';
+}
+
+/* =========================================================
+   Section stats + detail card
+   ========================================================= */
+function renderSectionStats(pts){
+  const host = $('#section-stats');
+  if (!host) return;
+  const p = prec();
+
+  if (!pts.length){
+    host.innerHTML = '<div class="stat"><span>Section</span><b>—</b></div>';
+    return;
+  }
+
+  const xs = pts.map(d => d.x), ys = pts.map(d => d.y);
+  const len  = xs[xs.length - 1] - xs[0];
+  const mn   = Math.min(...ys);
+  const mx   = Math.max(...ys);
+  const fall = ys[ys.length - 1] - ys[0];
+  const grade = len > 0 ? (fall / len) * 100 : null;
+
+  host.innerHTML =
+    '<div class="stat"><span>Stations plotted</span><b>' + pts.length + '</b></div>' +
+    '<div class="stat"><span>Section length</span><b>' + len.toFixed(2) + ' m</b></div>' +
+    '<div class="stat"><span>Lowest RL</span><b>' + mn.toFixed(p) + '</b></div>' +
+    '<div class="stat"><span>Highest RL</span><b>' + mx.toFixed(p) + '</b></div>' +
+    '<div class="stat"><span>Net fall / rise</span><b>' + (fall >= 0 ? '+' : '') + fall.toFixed(p) + ' m</b></div>' +
+    '<div class="stat"><span>Average grade</span><b>' + (grade === null ? '—' : grade.toFixed(2) + ' %') + '</b></div>';
+}
+
+function renderPointDetail(pts){
+  const host = $('#pt-detail');
+  if (!host) return;
+  const p = prec();
+  const sel = state.selectedRow;
+
+  if (sel === null || sel === undefined){
+    host.innerHTML = '<p class="hint" style="margin:0">👆 Tap a point on the section (or the ◎ button in Reduced Levels) to inspect its chainage and reduced level.</p>';
+    return;
+  }
+
+  const k = pts.findIndex(x => x.rowIndex === sel);
+
+  if (k < 0){
+    host.innerHTML =
+      '<div class="pt-card">' +
+        '<div class="pt-head">' +
+          '<div><span class="pt-tag">Selected row</span><b class="pt-title">Not plotted</b></div>' +
+          '<div class="pt-actions"><button class="icon-btn" data-nav="clear" title="Clear selection" aria-label="Clear selection">✕</button></div>' +
+        '</div>' +
+        '<p class="hint" style="margin:0">This row needs both a chainage and a reduced level before it appears on the section.</p>' +
+      '</div>';
+    return;
+  }
+
+  const pt = pts[k];
+  const dc = pt.dCh, dr = pt.dRl;
+  const drClass = dr === null ? '' : (dr > 0 ? 'up' : (dr < 0 ? 'down' : ''));
+  const gradeTxt = pt.grade === null ? '—' : ((pt.grade >= 0 ? '+' : '') + pt.grade.toFixed(2) + ' %');
+
+  host.innerHTML =
+    '<div class="pt-card">' +
+      '<div class="pt-head">' +
+        '<div><span class="pt-tag">Station</span><b class="pt-title">' + esc(pt.label) + '</b></div>' +
+        '<div class="pt-actions">' +
+          '<button class="icon-btn" data-nav="prev" ' + (k === 0 ? 'disabled' : '') + ' title="Previous point" aria-label="Previous point">‹</button>' +
+          '<button class="icon-btn" data-nav="next" ' + (k === pts.length - 1 ? 'disabled' : '') + ' title="Next point" aria-label="Next point">›</button>' +
+          '<button class="icon-btn" data-nav="clear" title="Clear selection" aria-label="Clear selection">✕</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pt-grid">' +
+        '<div><span>Chainage</span><b>' + pt.x.toFixed(2) + ' m</b></div>' +
+        '<div><span>Reduced Level</span><b>' + pt.y.toFixed(p) + ' m</b></div>' +
+        '<div><span>Instrument Height</span><b>' + (pt.hi !== null ? pt.hi.toFixed(p) : '—') + ' m</b></div>' +
+        '<div><span>Δ Chainage</span><b>' + (dc === null ? '—' : dc.toFixed(2) + ' m') + '</b></div>' +
+        '<div><span>Δ RL</span><b class="' + drClass + '">' + (dr === null ? '—' : (dr >= 0 ? '+' : '') + dr.toFixed(p) + ' m') + '</b></div>' +
+        '<div><span>Grade</span><b>' + gradeTxt + '</b></div>' +
+      '</div>' +
+      (pt.remarks ? '<div class="pt-remarks"><b>Remarks:</b> ' + esc(pt.remarks) + '</div>' : '') +
+    '</div>';
+}
+
+/* =========================================================
+   Section rendering + interactions
+   ========================================================= */
+function hideTip(){
+  const tip = $('#svg-tip');
+  if (!tip) return;
+  tip.hidden = true;
+  tip.innerHTML = '';
+  tip.classList.remove('below');
+}
+
+function showTip(k){
+  const pt = state.sectionPts[k];
+  const tip = $('#svg-tip');
+  const wrap = $('#section-wrap');
+  const svg = $('#svg-section svg');
+  if (!pt || !tip || !wrap || !svg) return;
+
+  const hit = svg.querySelector('circle.hit[data-k="' + k + '"]');
+  if (!hit) return;
+
+  const p = prec();
+  tip.innerHTML =
+    '<div class="tt-title">' + esc(pt.label) + '</div>' +
+    '<div class="tt-row"><span class="tt-key">Chainage</span><span>' + pt.x.toFixed(2) + ' m</span></div>' +
+    '<div class="tt-row"><span class="tt-key">RL</span><span><b>' + pt.y.toFixed(p) + ' m</b></span></div>' +
+    '<div class="tt-row"><span class="tt-key">HI</span><span>' + (pt.hi !== null ? pt.hi.toFixed(p) : '—') + ' m</span></div>' +
+    (pt.remarks ? '<div class="tt-rem">' + esc(pt.remarks) + '</div>' : '') +
+    '<div class="tt-hint">Click to pin</div>';
+
+  tip.hidden = false;
+  tip.classList.remove('below');
+
+  const hr = hit.getBoundingClientRect();
+  const wr = wrap.getBoundingClientRect();
+  const cx = hr.left + hr.width / 2 - wr.left;
+  const cy = hr.top + hr.height / 2 - wr.top;
+
+  const tw = tip.offsetWidth;
+  const th = tip.offsetHeight;
+
+  const left = Math.max(tw / 2 + 4, Math.min(wr.width - tw / 2 - 4, cx));
+  let top = cy - 12;
+  if (top - th < 0){ tip.classList.add('below'); top = cy + 14; }
+
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+
+function hotCircle(k, on){
+  const svg = $('#svg-section svg');
+  if (!svg) return;
+  const c = svg.querySelector('circle[data-pt="' + k + '"]');
+  if (!c) return;
+  c.setAttribute('r', on ? '6.4' : '4.2');
+  c.setAttribute('stroke-width', on ? '3' : '2');
+  c.setAttribute('fill', on ? '#1a73e8' : '#ffffff');
+}
+
+function clearHot(){
+  const svg = $('#svg-section svg');
+  if (!svg) return;
+  Array.from(svg.querySelectorAll('circle[data-pt]')).forEach(c => {
+    c.setAttribute('r', '4.2');
+    c.setAttribute('stroke-width', '2');
+    c.setAttribute('fill', '#ffffff');
+  });
+}
+
+function renderSection(){
+  const host = $('#svg-section');
+  if (!host) return;
+
+  const pts = sectionPoints();
+  state.sectionPts = pts;
+
+  host.innerHTML = sectionSVG(pts, {
+    labels: $('#opt-labels').checked,
+    grid: $('#opt-grid').checked,
+    uid: 'sec',
+    bm: num($('#p-bmrl').value),
+    interactive: true,
+    selectedRow: state.selectedRow
+  });
+
+  hideTip();
+  renderSectionStats(pts);
+  renderPointDetail(pts);
+}
+
+/* =========================================================
+   Report
+   ========================================================= */
+function levelBookTableHTML(c, p){
+  let rows = '';
+  c.rows.forEach((o, i) => {
+    const r = state.rows[i];
+    const ch = num(r.chainage), bs = num(r.bs), is = num(r.is), fs = num(r.fs);
+    rows += `<tr>
+      <td class="num">${i + 1}</td>
+      <td>${esc(r.station || '—')}</td>
+      <td class="num">${ch !== null ? ch.toFixed(2) : '—'}</td>
+      <td class="num">${bs !== null ? bs.toFixed(p) : ''}</td>
+      <td class="num">${is !== null ? is.toFixed(p) : ''}</td>
+      <td class="num">${fs !== null ? fs.toFixed(p) : ''}</td>
+      <td class="num">${fmt(o.hi, p)}</td>
+      <td class="num"><b>${fmt(o.rl, p)}</b></td>
+      <td>${esc(r.remarks || '')}</td>
+    </tr>`;
+  });
+
+  return `<div class="table-wrap"><table class="mini">
+    <thead><tr>
+      <th class="num">S.N.</th><th>Station</th><th class="num">Chainage (m)</th>
+      <th class="num">BS (m)</th><th class="num">IS (m)</th><th class="num">FS (m)</th>
+      <th class="num">HI (m)</th><th class="num">RL (m)</th><th>Remarks</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr>
+      <td colspan="3" class="num">TOTALS</td>
+      <td class="num">${fmt(c.sumBS, p)}</td>
+      <td class="num">${fmt(c.sumIS, p)}</td>
+      <td class="num">${fmt(c.sumFS, p)}</td>
+      <td class="num">${c.setups} setup${c.setups === 1 ? '' : 's'}</td>
+      <td class="num">${fmt(c.lastRL, p)}</td>
+      <td></td>
+    </tr></tfoot></table></div>`;
+}
+
+function renderReport(){
+  const c = state.last || compute();
+  const p = prec();
+  const meta = getMeta();
+  const ok = checkPassed(c);
+
+  const svg = sectionSVG(sectionPoints(), {
+    labels: true, grid: true, uid: 'rep', bm: meta.bmrl, precision: p
+  });
+
+  const checkRows = [
+    ['Σ Back Sights (ΣBS)', fmt(c.sumBS, p)],
+    ['Σ Fore Sights (ΣFS)', fmt(c.sumFS, p)],
+    ['Σ Intermediate Sights (ΣIS)', fmt(c.sumIS, p)],
+    ['ΣBS − ΣFS', fmt(c.lhs, p)],
+    ['Last RL − First RL', fmt(c.rhs, p)],
+    ['Difference (misclosure)', fmt(c.diff, p)],
+    ['Instrument setups', String(c.setups)]
+  ].map(([k, v]) => `<tr><th style="width:65%">${k}</th><td class="num">${v}</td></tr>`).join('');
+
+  const status = c.diff === null
+    ? '<div class="banner warn">Incomplete data — arithmetic check not available.</div>'
+    : (ok
+        ? `<div class="banner ok">✔ Arithmetic check satisfied within ±${c.tol.toFixed(p)} m.</div>`
+        : `<div class="banner err">✖ Arithmetic check failed — difference ${fmt(c.diff, p)} m.</div>`);
+
+  $('#report-body').innerHTML = `
+    <div class="report">
+      <div class="report-head">
+        <div>
+          <div class="report-brand">CIVIZ</div>
+          <h2>Digital Levelling Report</h2>
+          <div class="sub">Height of Instrument (HI) Method · Existing Ground Levels</div>
+        </div>
+        <div class="report-meta">
+          <div>Report date<b>${esc(fmtDate(meta.date))}</b></div>
+        </div>
+      </div>
+
+      <div class="meta-grid">
+        <div><span>Project</span><b>${esc(meta.name || '—')}</b></div>
+        <div><span>Surveyor</span><b>${esc(meta.surveyor || '—')}</b></div>
+        <div><span>Benchmark</span><b>${esc(meta.bmid || '—')}</b></div>
+        <div><span>BM RL (m)</span><b>${meta.bmrl !== null ? meta.bmrl.toFixed(p) : '—'}</b></div>
+        <div><span>Precision</span><b>${p} decimals</b></div>
+        <div><span>Stations</span><b>${state.rows.length}</b></div>
+      </div>
+
+      <h3>1. Level Book</h3>
+      ${levelBookTableHTML(c, p)}
+
+      <h3>2. Longitudinal Section</h3>
+      <div class="report-chart">${svg}</div>
+
+      <h3>3. Reduced Levels</h3>
+      ${rlTableHTML(c, p, false)}
+
+      <h3>4. Arithmetic Check</h3>
+      ${status}
+      <table class="mini"><tbody>${checkRows}</tbody></table>
+
+      <div class="sign-row">
+        <div>Surveyor</div>
+        <div>Checked by</div>
+        <div>Date</div>
+      </div>
+    </div>`;
+}
+
+/* =========================================================
+   Tabs
+   ========================================================= */
+function showTab(name){
+  $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $$('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  if (name === 'section') renderSection();
+  if (name === 'report')  renderReport();
+}
+
+/* =========================================================
+   Persistence
+   ========================================================= */
+let saveTimer = null;
+function saveStateSoon(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 400);
+}
+function saveState(){
+  const meta = {};
+  META_IDS.forEach(id => { meta[id] = $('#' + id).value; });
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      meta,
+      rows: state.rows,
+      selectedRow: state.selectedRow
+    }));
+  } catch (e) {}
+}
+function restoreState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.rows) || !d.rows.length) return false;
+    META_IDS.forEach(id => {
+      if (d.meta && d.meta[id] !== undefined && d.meta[id] !== null) $('#' + id).value = d.meta[id];
+    });
+    state.rows = d.rows.map(r => ({
+      station: r.station || '', chainage: r.chainage || '',
+      bs: r.bs || '', is: r.is || '', fs: r.fs || '', remarks: r.remarks || ''
+    }));
+    state.selectedRow = (typeof d.selectedRow === 'number') ? d.selectedRow : null;
+    return true;
+  } catch (e) { return false; }
+}
+
+/* =========================================================
+   Sample / CSV / downloads
+   ========================================================= */
+function loadSample(){
+  $('#p-name').value = 'Sample Road Levelling';
+  $('#p-date').value = new Date().toISOString().slice(0, 10);
+  $('#p-surveyor').value = 'CIVIZ Demo';
+  $('#p-bmid').value = 'BM-01';
+  $('#p-bmrl').value = '100.000';
+  $('#precision').value = '3';
+  state.selectedRow = null;
+  state.rows = [
+    { station: 'BM-01', chainage: '0',   bs: '1.250', is: '',      fs: '',      remarks: 'Benchmark' },
+    { station: 'P-01',  chainage: '20',  bs: '',      is: '1.500', fs: '',      remarks: 'Ground' },
+    { station: 'P-02',  chainage: '40',  bs: '',      is: '1.850', fs: '',      remarks: 'Ground' },
+    { station: 'CP-01', chainage: '60',  bs: '1.100', is: '',      fs: '2.100', remarks: 'Change Point' },
+    { station: 'P-03',  chainage: '80',  bs: '',      is: '1.450', fs: '',      remarks: 'Ground' },
+    { station: 'END',   chainage: '100', bs: '',      is: '',      fs: '1.700', remarks: 'Closing' }
+  ];
+  renderRows();
+  updateAll();
+}
+
+function csvCell(v){
+  const s = String(v === null || v === undefined ? '' : v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function exportCSV(){
+  const c = state.last || compute();
+  const p = prec();
+  const meta = getMeta();
+  const rows = [];
+
+  rows.push(['CIVIZ - Digital Levelling Report']);
+  rows.push(['Project', meta.name]);
+  rows.push(['Date', meta.date]);
+  rows.push(['Surveyor', meta.surveyor]);
+  rows.push(['Benchmark ID', meta.bmid]);
+  rows.push(['Benchmark RL (m)', meta.bmrl !== null ? meta.bmrl.toFixed(p) : '']);
+  rows.push(['Precision', p + ' decimals']);
+  rows.push([]);
+  rows.push(['S.N.','Station','Chainage (m)','BS (m)','IS (m)','FS (m)','HI (m)','RL (m)','Remarks']);
+
+  c.rows.forEach((o, i) => {
+    const r = state.rows[i];
+    rows.push([
+      i + 1, r.station, r.chainage, r.bs, r.is, r.fs,
+      o.hi !== null ? o.hi.toFixed(p) : '',
+      o.rl !== null ? o.rl.toFixed(p) : '',
+      r.remarks
+    ]);
+  });
+
+  rows.push([]);
+  rows.push(['TOTALS','','',
+    c.sumBS.toFixed(p), c.sumIS.toFixed(p), c.sumFS.toFixed(p),
+    c.setups + ' setups', c.lastRL !== null ? c.lastRL.toFixed(p) : '', '']);
+  rows.push([]);
+  rows.push(['Arithmetic Check']);
+  rows.push(['Sum BS - Sum FS', c.lhs.toFixed(p)]);
+  rows.push(['Last RL - First RL', c.rhs !== null ? c.rhs.toFixed(p) : '']);
+  rows.push(['Difference', c.diff !== null ? c.diff.toFixed(p) : '']);
+  rows.push(['Status', checkPassed(c) ? 'OK' : (c.diff === null ? 'INCOMPLETE' : 'FAILED')]);
+
+  const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+  download((meta.name || 'levelling') + '.csv', csv, 'text/csv;charset=utf-8');
+}
+
+function downloadSVG(){
+  const svg = sectionSVG(sectionPoints(), {
+    labels: $('#opt-labels').checked,
+    grid: $('#opt-grid').checked,
+    uid: 'dl',
+    bm: num($('#p-bmrl').value)
+  });
+  download('l-section.svg', '<?xml version="1.0" encoding="UTF-8"?>\n' + svg, 'image/svg+xml;charset=utf-8');
+}
+
+function download(name, content, type){
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 0);
+}
+
+function printReport(){
+  showTab('report');
+  renderReport();
+  setTimeout(() => window.print(), 150);
+}
+
+/* =========================================================
+   Events / init
+   ========================================================= */
+function bind(){
+  /* --- level book --- */
+  $('#tbody').addEventListener('input', e => {
+    const inp = e.target.closest('input[data-k]');
+    if (!inp) return;
+    const i = Number(inp.dataset.i);
+    if (!state.rows[i]) return;
+    state.rows[i][inp.dataset.k] = inp.value;
+    updateAll();
+  });
+
+  $('#tbody').addEventListener('click', e => {
+    const b = e.target.closest('[data-del]');
+    if (!b) return;
+    const i = Number(b.dataset.del);
+    state.rows.splice(i, 1);
+    if (!state.rows.length) state.rows.push(blankRow());
+    if (state.selectedRow !== null){
+      if (state.selectedRow === i) state.selectedRow = null;
+      else if (state.selectedRow > i) state.selectedRow--;
+    }
+    renderRows();
+    updateAll();
+  });
+
+  $('#btn-add').addEventListener('click', () => {
+    state.rows.push(blankRow());
+    renderRows();
+    updateAll();
+  });
+
+  $('#btn-clear').addEventListener('click', () => {
+    if (!confirm('Clear all rows and start a new level book?')) return;
+    state.rows = [blankRow()];
+    state.selectedRow = null;
+    renderRows();
+    updateAll();
+  });
+
+  /* --- header actions --- */
+  $('#btn-sample').addEventListener('click', loadSample);
+  $('#btn-csv').addEventListener('click', exportCSV);
+  $('#btn-svg').addEventListener('click', downloadSVG);
+  $('#btn-pdf').addEventListener('click', printReport);
+  $('#btn-print').addEventListener('click', () => window.print());
+
+  /* --- project details --- */
+  META_IDS.forEach(id => $('#' + id).addEventListener('input', updateAll));
+  $('#precision').addEventListener('change', updateAll);
+
+  /* --- tabs --- */
+  $$('.tab-btn').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  /* --- section toggles --- */
+  $('#opt-labels').addEventListener('change', renderSection);
+  $('#opt-grid').addEventListener('change', renderSection);
+
+  /* --- section interactivity (delegated: survives innerHTML re-render) --- */
+  const sectionEl = $('#svg-section');
+
+  sectionEl.addEventListener('mouseover', e => {
+    const hit = e.target.closest('circle.hit');
+    if (!hit) return;
+    const k = Number(hit.dataset.k);
+    clearHot();
+    hotCircle(k, true);
+    showTip(k);
+  });
+
+  sectionEl.addEventListener('mouseout', e => {
+    const hit = e.target.closest('circle.hit');
+    if (!hit) return;
+    const k = Number(hit.dataset.k);
+    hotCircle(k, false);
+    hideTip();
+  });
+
+  sectionEl.addEventListener('click', e => {
+    const hit = e.target.closest('circle.hit');
+    if (!hit) return;
+    const k = Number(hit.dataset.k);
+    const pt = state.sectionPts[k];
+    if (!pt) return;
+    state.selectedRow = (state.selectedRow === pt.rowIndex) ? null : pt.rowIndex;
+    renderSection();
+  });
+
+  /* --- pinned point navigation --- */
+  $('#pt-detail').addEventListener('click', e => {
+    const b = e.target.closest('[data-nav]');
+    if (!b) return;
+    const act = b.dataset.nav;
+    const pts = state.sectionPts;
+
+    if (act === 'clear'){ state.selectedRow = null; renderSection(); return; }
+
+    const k = pts.findIndex(x => x.rowIndex === state.selectedRow);
+    if (k < 0) return;
+
+    if (act === 'prev' && k > 0){
+      state.selectedRow = pts[k - 1].rowIndex;
+      renderSection();
+    }
+    if (act === 'next' && k < pts.length - 1){
+      state.selectedRow = pts[k + 1].rowIndex;
+      renderSection();
+    }
+  });
+
+  /* --- jump from Reduced Levels table to the section --- */
+  $('#rl-table').addEventListener('click', e => {
+    const b = e.target.closest('[data-sel]');
+    if (!b) return;
+    state.selectedRow = Number(b.dataset.sel);
+    showTab('section');
+    const w = $('#section-wrap');
+    if (w && w.scrollIntoView) w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  /* --- keyboard --- */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && state.selectedRow !== null){
+      state.selectedRow = null;
+      renderSection();
+    }
+    if ($('#tab-section').classList.contains('active') && state.sectionPts.length){
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+        const pts = state.sectionPts;
+        const k = pts.findIndex(x => x.rowIndex === state.selectedRow);
+        if (k < 0){
+          state.selectedRow = pts[0].rowIndex;
+        } else if (e.key === 'ArrowRight' && k < pts.length - 1){
+          state.selectedRow = pts[k + 1].rowIndex;
+        } else if (e.key === 'ArrowLeft' && k > 0){
+          state.selectedRow = pts[k - 1].rowIndex;
+        }
+        renderSection();
+      }
+    }
+  });
+
+  window.addEventListener('beforeprint', () => {
+    if (!$('#tab-report').classList.contains('active')) showTab('report');
+    else renderReport();
+  });
+}
+
+function init(){
+  bind();
+  if (restoreState()){
+    renderRows();
+    updateAll();
+  } else {
+    loadSample();
+  }
+  showTab('book');
+}
+
+if (document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
