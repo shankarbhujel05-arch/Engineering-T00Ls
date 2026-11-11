@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hill Road Earthwork Calculator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f6f9;--card:#fff;--tx:#1b2430;--mu:#5d6b7a;--bd:#d7dfe7;--ac:#0b5cab;--cut:#c0392b;--fill:#1f77b4;--er:#fde8e6;--wn:#fff4d6;--tr:#eef5ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161c;--card:#1a222b;--tx:#e6ecf2;--mu:#9aa8b6;--bd:#2d3a47;--ac:#2f7fd0;--cut:#ef7a6c;--fill:#5aa9e6;--er:#4a2420;--wn:#4a3d17;--tr:#1f2c3b}}
+:root[data-theme="dark"]{--bg:#11161c;--card:#1a222b;--tx:#e6ecf2;--mu:#9aa8b6;--bd:#2d3a47;--ac:#2f7fd0;--cut:#ef7a6c;--fill:#5aa9e6;--er:#4a2420;--wn:#4a3d17;--tr:#1f2c3b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--ac);color:#fff;padding:14px 16px}
+header h1{margin:0;font-size:1.2rem}header p{margin:2px 0 0;opacity:.88;font-size:.85rem}
+main{max-width:1100px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px}
+h2{font-size:1rem;margin:0 0 10px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:block;font-size:.78rem;color:var(--mu);margin-bottom:2px}
+input,select{width:100%;padding:7px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit}
+button{padding:8px 13px;border:1px solid var(--ac);background:var(--ac);color:#fff;border-radius:6px;font:inherit;cursor:pointer}
+button.s{background:transparent;color:var(--ac)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th,td{border:1px solid var(--bd);padding:5px 7px;text-align:right;white-space:nowrap}
+th{background:var(--bg);font-weight:600}
+td input{min-width:72px;padding:4px 6px}
+tr.tr td{background:var(--tr)}
+tfoot td{font-weight:700}
+.msg{padding:9px 12px;border-radius:8px;margin-bottom:8px;font-size:.88rem}
+.er{background:var(--er)}.wn{background:var(--wn)}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.k div{border:1px solid var(--bd);border-radius:8px;padding:10px}
+.k b{display:block;font-size:1.25rem}.k span{font-size:.78rem;color:var(--mu)}
+.h{font-size:.8rem;color:var(--mu);margin:8px 0 0}
+pre{margin:6px 0;white-space:pre-wrap;font:.8rem/1.5 ui-monospace,Menlo,Consolas,monospace}
+details{border-top:1px solid var(--bd);padding:6px 0}summary{cursor:pointer;font-weight:600;font-size:.88rem}
+</style></head><body>
+<header><h1>Hill Road Earthwork Calculator</h1><p>Average end area method, full and partial sections, transition points</p></header>
+<main>
+<section class="card" id="set"><h2>Project and design inputs</h2><div class="g">
+<div><label>Project name</label><input id="proj" value=""></div>
+<div><label>Formation width B (m)</label><input id="B" inputmode="decimal"></div>
+<div><label>Cut side slope p (p : 1)</label><input id="p" inputmode="decimal"></div>
+<div><label>Fill side slope s (s : 1)</label><input id="s" inputmode="decimal"></div>
+<div><label>Calculation mode</label><select id="mode"><option value="textbook">Textbook (you choose full or partial)</option><option value="strict">Strict (automatic, d ≥ b/r test)</option></select></div>
+<div><label>Depth input</label><select id="im"><option value="depth">Depth of cut / fill</option><option value="level">NSL and FSL</option></select></div>
+<div><label>Cut rate (per m³)</label><input id="rc" inputmode="decimal" value="0"></div>
+<div><label>Fill rate (per m³)</label><input id="rf" inputmode="decimal" value="0"></div>
+</div></section>
+<section class="card"><h2>Chainage data</h2><div id="rows" class="sc"></div>
+<div class="bar"><button id="add">Add row</button><button class="s" id="test">Load test case</button><button class="s" id="clr">Clear</button><button class="s" id="sv">Save project (JSON)</button><button class="s" id="ld">Load project</button><input type="file" id="lf" accept=".json,application/json" hidden></div>
+<p class="h">Cross slope is the ground slope, either r : 1 (H : V) or a percentage (r = 100 / %). Depths are at the centre line. Transition points are inserted automatically where cut changes to fill. Textbook mode counts only the dominant side in each segment, as in the hand calculation; Strict mode counts both cut and fill areas in every segment.</p></section>
+<div id="msgs"></div><div id="out"></div>
+<section class="card" id="ex" style="display:none"><h2>Export</h2><div class="bar" style="margin-top:0"><button id="xb">Excel (.xlsx) with formulas</button><button id="pb" class="s">PDF (landscape A4)</button></div><p class="h" id="exm"></p></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),esc=v=>String(v).replace(/"/g,'&quot;'),f3=(x,n=3)=>isFinite(x)?x.toFixed(n):'-';
+const TEST=[[0,.3,'',10],[30,.2,'',15],[60,'',.5,12],[90,'',.7,8]];
+const TN={FC:'Full cut',FF:'Full fill',PC:'Partial'};
+let rows=[],LAST=null;
+const mk=(ch,cut,fill,sv)=>({ch,cut,fill,nsl:'',fsl:'',sv,su:'r',part:0});
+function loadTest(){$('#B').value=8;$('#p').value=1;$('#s').value=2;$('#mode').value='textbook';$('#im').value='depth';$('#proj').value='Hill road sample';rows=TEST.map(t=>mk(...t));renderRows();calc()}
+function renderRows(){
+ const im=$('#im').value,tb=$('#mode').value==='textbook',ks=im==='depth'?['ch','cut','fill']:['ch','nsl','fsl'];
+ const hd=im==='depth'?['Chainage (m)','Cut depth (m)','Fill depth (m)']:['Chainage (m)','NSL (m)','FSL (m)'];
+ const inp=(i,k,v)=>`<td><input data-i="${i}" data-k="${k}" inputmode="decimal" value="${esc(v)}"></td>`;
+ let t=`<table><thead><tr><th>#</th>${hd.map(x=>`<th>${x}</th>`).join('')}<th>Cross slope</th><th>Unit</th>${tb?'<th>Section</th>':''}<th></th></tr></thead><tbody>`;
+ rows.forEach((o,i)=>{
+  t+=`<tr><td>${i+1}</td>${ks.map(k=>inp(i,k,o[k])).join('')}${inp(i,'sv',o.sv)}<td><select data-i="${i}" data-k="su"><option value="r">r : 1</option><option value="%"${o.su==='%'?' selected':''}>%</option></select></td>`+
+  (tb?`<td><select data-i="${i}" data-k="part"><option value="0">Full</option><option value="1"${o.part?' selected':''}>Partial</option></select></td>`:'')+
+  `<td><button class="s" data-del="${i}" aria-label="Delete row">✕</button></td></tr>`});
+ $('#rows').innerHTML=t+'</tbody></table>'}
+function show(E,W){
+ $('#msgs').innerHTML=E.map(m=>`<div class="msg er">${m}</div>`).join('')+W.map(m=>`<div class="msg wn">${m}</div>`).join('');
+ if(E.length){$('#out').innerHTML='';$('#ex').style.display='none';LAST=null}}
+function calc(){
+ const S={B:+$('#B').value,p:+$('#p').value,s:+$('#s').value,mode:$('#mode').value,im:$('#im').value},E=[],W=[];
+ const b=S.B/2,p=S.p,s=S.s,tb=S.mode==='textbook';
+ if(!(S.B>0))E.push('Formation width must be greater than 0.');
+ if(!(p>0))E.push('Cut side slope p must be greater than 0.');
+ if(!(s>0))E.push('Fill side slope s must be greater than 0.');
+ const R=rows.map((o,i)=>{const n=i+1,ch=parseFloat(o.ch);let d=0;
+  if(isNaN(ch))E.push(`Row ${n}: chainage is missing.`);
+  if(S.im==='depth'){const c=parseFloat(o.cut)||0,f=parseFloat(o.fill)||0;
+   if(c<0||f<0)E.push(`Row ${n}: depths must be positive numbers.`);
+   if(c>0&&f>0)E.push(`Row ${n}: enter cut or fill, not both.`);d=c>0?c:-f}
+  else{const a=parseFloat(o.nsl),e=parseFloat(o.fsl);if(isNaN(a)||isNaN(e))E.push(`Row ${n}: NSL and FSL are both required.`);d=a-e}
+  const v=parseFloat(o.sv),r=o.su==='%'?100/v:v;
+  if(!(r>0&&isFinite(r)))E.push(`Row ${n}: cross slope must be greater than 0.`);
+  return{ch,d,r,part:+o.part,n,fl:S.im==='level'?parseFloat(o.fsl):0}});
+ if(R.length<2)E.push('Enter at least two chainage rows.');
+ R.sort((a,c)=>a.ch-c.ch);
+ for(let i=1;i<R.length;i++)if(R[i].ch===R[i-1].ch)E.push(`Chainage ${R[i].ch} is repeated.`);
+ if(E.length)return show(E,W);
+ const sec=[];
+ R.forEach((x,i)=>{sec.push({...x});const y=R[i+1];
+  if(y&&x.d*y.d<0){const L=y.ch-x.ch,t=Math.abs(x.d)/(Math.abs(x.d)+Math.abs(y.d));
+   sec.push({ch:x.ch+L*t,d:0,r:2*x.r*y.r/(x.r+y.r),r1:x.r,r2:y.r,x:L*t,fl:x.fl+(y.fl-x.fl)*t,tr:1,n:'T'})}});
+ sec.forEach(c=>{const{d,r}=c,ad=Math.abs(d),lbl=c.tr?'transition':'row '+c.n;
+  c.t=(d===0||c.tr)?'PC':tb?(c.part?'PC':d>0?'FC':'FF'):(ad*r>=b?(d>0?'FC':'FF'):'PC');
+  if((c.t==='FC'||c.t==='PC')&&r<=p)E.push(`Chainage ${f3(c.ch)} (${lbl}): r = ${f3(r,2)} is not greater than p = ${p}. The cut slope never meets the ground.`);
+  if((c.t==='FF'||c.t==='PC')&&r<=s)E.push(`Chainage ${f3(c.ch)} (${lbl}): r = ${f3(r,2)} is not greater than s = ${s}. The fill slope never meets the ground.`);
+  if(tb&&!c.tr&&d!==0){
+   if(c.t!=='PC'&&ad*r<b)W.push(`Chainage ${f3(c.ch)}: ground crosses the formation (d·r < b). Strict mode would treat this section as partial.`);
+   if(c.t==='PC'&&ad*r>b)W.push(`Chainage ${f3(c.ch)}: ground does not cross the formation (d·r > b). Use Full instead of Partial.`)}
+  if(c.t==='FC')c.Ac=(p*b*b+r*r*(2*b*d+p*d*d))/(r*r-p*p),c.Af=0;
+  else if(c.t==='FF')c.Af=(s*b*b+r*r*(2*b*ad+s*d*d))/(r*r-s*s),c.Ac=0;
+  else c.Ac=.5*(b+r*d)**2/(r-p),c.Af=.5*(b-r*d)**2/(r-s)});
+ if(E.length)return show(E,W);
+ const T={c:0,f:0};
+ for(let i=1;i<sec.length;i++){const a=sec[i-1],c=sec[i],sg=a.d+c.d;
+  c.L=c.ch-a.ch;c.mc=(a.Ac+c.Ac)/2;c.mf=(a.Af+c.Af)/2;
+  c.qc=(!tb||sg>=0)?c.mc*c.L:0;c.qf=(!tb||sg<=0)?c.mf*c.L:0;T.c+=c.qc;T.f+=c.qf}
+ LAST={S,sec,T,b};show(E,W);render()}
+function render(){
+ const{S,sec,T,b}=LAST,rc=+$('#rc').value||0,rf=+$('#rf').value||0,net=T.f-T.c;
+ let h=`<section class="card"><h2>Summary</h2><div class="k"><div><span>Total cut</span><b>${f3(T.c,2)} m³</b></div><div><span>Total fill</span><b>${f3(T.f,2)} m³</b></div><div><span>${net>=0?'Net fill (borrow needed)':'Net cut (surplus)'}</span><b>${f3(Math.abs(net),2)} m³</b></div><div><span>Transition points</span><b>${sec.filter(c=>c.tr).map(c=>f3(c.ch)).join(', ')||'none'}</b></div><div><span>Estimated amount</span><b>${f3(T.c*rc+T.f*rf,2)}</b></div></div></section>`;
+ h+=`<section class="card"><h2>Results table</h2><div class="sc"><table><thead><tr>${['Chainage (m)','Cut d','Fill d','r','Section','Ac (m²)','Af (m²)','Mean Ac','Mean Af','L (m)','Cut qty (m³)','Fill qty (m³)'].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>`;
+ sec.forEach((c,i)=>{h+=`<tr${c.tr?' class="tr"':''}><td>${f3(c.ch)}</td><td>${c.d>0?f3(c.d,2):'-'}</td><td>${c.d<0?f3(-c.d,2):'-'}</td><td>${f3(c.r,2)}</td><td>${c.tr?'Transition':TN[c.t]}</td><td>${c.Ac?f3(c.Ac):'-'}</td><td>${c.Af?f3(c.Af):'-'}</td>`+
+  (i?`<td>${c.qc?f3(c.mc):'-'}</td><td>${c.qf?f3(c.mf):'-'}</td><td>${f3(c.L)}</td><td>${c.qc?f3(c.qc,2):'-'}</td><td>${c.qf?f3(c.qf,2):'-'}</td>`:'<td>-</td>'.repeat(5)+'<td>-</td><td>-</td>')+'</tr>'});
+ h+=`</tbody><tfoot><tr><td colspan="10">Total</td><td>${f3(T.c,2)}</td><td>${f3(T.f,2)}</td></tr></tfoot></table></div></section>`;
+ h+=extra(sec,S,b)+card('Section area by chainage (m²)',chart(sec));
+ h+=`<section class="card"><h2>Per-row working</h2><p class="h" style="margin:0 0 6px">b = B/2 = ${b} m, p = ${S.p}, s = ${S.s}</p>${sec.map(c=>`<details><summary>Chainage ${f3(c.ch)} m${c.tr?' (transition)':''}</summary><pre>${work(c,S,b)}</pre></details>`).join('')}</section>`;
+ $('#out').innerHTML=h;$('#ex').style.display='';xsec()}
+function work(c,S,b){const F=x=>x.toFixed(3),ad=Math.abs(c.d),r=c.r,p=S.p,s=S.s;
+ let t=`d = ${F(c.d)} m (${c.d>0?'cut':c.d<0?'fill':'zero'}), r = ${F(r)}`;
+ if(c.tr)t+=`\nTransition: x = L·|d1| / (|d1| + |d2|) = ${F(c.x)} m after the previous section.\nr (harmonic mean) = 2·r1·r2 / (r1 + r2) = 2×${F(c.r1)}×${F(c.r2)} / (${F(c.r1)}+${F(c.r2)}) = ${F(r)}`;
+ if(c.t==='FC')t+=`\nFull cut: Ac = (p·b² + r²(2bd + p·d²)) / (r² − p²)\n  = (${p}×${b}² + ${F(r)}²(2×${b}×${F(ad)} + ${p}×${F(ad)}²)) / (${F(r)}² − ${p}²) = ${F(c.Ac)} m²`;
+ else if(c.t==='FF')t+=`\nFull fill: Af = (s·b² + r²(2bd + s·d²)) / (r² − s²)\n  = (${s}×${b}² + ${F(r)}²(2×${b}×${F(ad)} + ${s}×${F(ad)}²)) / (${F(r)}² − ${s}²) = ${F(c.Af)} m²`;
+ else t+=`\nPartial: Ac = ½(b + r·d)² / (r − p) = ½(${b} + ${F(r)}×${F(c.d)})² / (${F(r)} − ${p}) = ${F(c.Ac)} m²\n         Af = ½(b − r·d)² / (r − s) = ½(${b} − ${F(r)}×${F(c.d)})² / (${F(r)} − ${s}) = ${F(c.Af)} m²`;
+ if(c.L!=null)t+=`\nSegment from previous section: L = ${F(c.L)} m, cut qty = ${F(c.qc)} m³, fill qty = ${F(c.qf)} m³`;
+ return t}
+function chart(sec){
+ const W=700,H=250,m={l:44,r:14,t:22,b:32},x0=sec[0].ch,x1=sec[sec.length-1].ch,ym=Math.max(1e-9,...sec.map(c=>Math.max(c.Ac,c.Af)))*1.1;
+ const X=v=>m.l+(v-x0)/((x1-x0)||1)*(W-m.l-m.r),Y=v=>H-m.b-v/ym*(H-m.t-m.b);
+ const ln=(k,cl)=>`<polyline fill="none" stroke="var(--${cl})" stroke-width="2" points="${sec.map(c=>X(c.ch).toFixed(1)+','+Y(c[k]).toFixed(1)).join(' ')}"/>`+sec.map(c=>`<circle cx="${X(c.ch).toFixed(1)}" cy="${Y(c[k]).toFixed(1)}" r="3" fill="var(--${cl})"/>`).join('');
+ let g='';for(let i=0;i<=4;i++){const v=ym*i/4;g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--bd)"/><text x="${m.l-5}" y="${Y(v)+4}" text-anchor="end">${v.toFixed(1)}</text>`}
+ if(sec.length<=14)g+=sec.map(c=>`<text x="${X(c.ch)}" y="${H-m.b+16}" text-anchor="middle">${+c.ch.toFixed(1)}</text>`).join('');
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cut and fill section area by chainage" style="font-size:11px;fill:var(--mu)">${g}${ln('Ac','cut')}${ln('Af','fill')}<text x="${m.l}" y="12" fill="var(--cut)">● Cut area (m²)</text><text x="${m.l+110}" y="12" fill="var(--fill)">● Fill area (m²)</text><text x="${W-m.r}" y="12" text-anchor="end">Chainage (m)</text></svg>`}
+async function save(name,data){
+ try{const d=window.claude&&await claude.use('downloads');if(d){await d.save({filename:name,data});return}}catch(e){if(e&&e.code==='declined')return}
+ const u=URL.createObjectURL(new Blob([data])),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5e3)}
+const note=t=>$('#exm').textContent=t;
+function xl(){
+ if(!window.XLSX)return note('The Excel library did not load. Check your connection and reload.');
+ const{S,sec,T}=LAST,N=sec.length,n=(v,f)=>f?{t:'n',v,f}:{t:'n',v},rc=+$('#rc').value||0,rf=+$('#rf').value||0;
+ const P='Inputs!$B$',b=P+'3',pp=P+'4',ss=P+'5';
+ const I=[['Project',$('#proj').value],['Formation width B (m)',S.B],['Half width b (m)',n(S.B/2,'B2/2')],['Cut side slope p (p:1)',S.p],['Fill side slope s (s:1)',S.s],['Mode',S.mode==='textbook'?'Textbook':'Strict'],['Cut rate (per m3)',rc],['Fill rate (per m3)',rf],[],['Chainage (m)','Depth d (+cut / -fill)','r (H:V)']];
+ sec.filter(c=>!c.tr).forEach(c=>I.push([c.ch,c.d,c.r]));
+ const EW=[['Chainage','Type (FC/FF/PC)','d (m, +cut/-fill)','r','Ac (m2)','Af (m2)','Mean Ac','Mean Af','L (m)','Cut qty (m3)','Fill qty (m3)']];
+ sec.forEach((c,i)=>{const r=i+2,q=r-1,B='B'+r,C='C'+r,D='D'+r;
+  const row=[c.ch,c.t,c.d,c.r,
+   n(c.Ac,`IF(${B}="FC",(${pp}*${b}^2+${D}^2*(2*${b}*${C}+${pp}*${C}^2))/(${D}^2-${pp}^2),IF(${B}="PC",0.5*(${b}+${D}*${C})^2/(${D}-${pp}),0))`),
+   n(c.Af,`IF(${B}="FF",(${ss}*${b}^2+${D}^2*(2*${b}*ABS(${C})+${ss}*${C}^2))/(${D}^2-${ss}^2),IF(${B}="PC",0.5*(${b}-${D}*${C})^2/(${D}-${ss}),0))`)];
+  if(i){const sg=`C${q}+C${r}`;
+   row.push(n(c.mc,`(E${q}+E${r})/2`),n(c.mf,`(F${q}+F${r})/2`),n(c.L,`A${r}-A${q}`),
+    n(c.qc,`IF(OR(${P}6="Strict",${sg}>=0),G${r}*I${r},0)`),n(c.qf,`IF(OR(${P}6="Strict",${sg}<=0),H${r}*I${r},0)`))}
+  EW.push(row)});
+ EW.push(['Total','','','','','','','','',n(T.c,`SUM(J3:J${N+1})`),n(T.f,`SUM(K3:K${N+1})`)]);
+ const ES=[['Item','Quantity (m3)','Rate','Amount'],['Cutting',n(T.c,`Earthwork!J${N+2}`),n(rc,'Inputs!B7'),n(T.c*rc,'B2*C2')],['Filling',n(T.f,`Earthwork!K${N+2}`),n(rf,'Inputs!B8'),n(T.f*rf,'B3*C3')],['Total','','',n(T.c*rc+T.f*rf,'SUM(D2:D3)')]];
+ const wb=XLSX.utils.book_new();
+ [['Inputs',I,[28,22,12]],['Earthwork',EW,[11,15,16,8,10,10,10,10,9,13,13]],['Estimate',ES,[22,16,12,14]]].forEach(([nm,a,w])=>{const ws=XLSX.utils.aoa_to_sheet(a);ws['!cols']=w.map(x=>({wch:x}));XLSX.utils.book_append_sheet(wb,ws,nm)});
+ save('earthwork_estimate.xlsx',XLSX.write(wb,{bookType:'xlsx',type:'array'}));
+ note('Excel workbook ready. Areas, segment quantities, totals and the estimate are live formulas linked to the Inputs sheet.')}
+function pdf(){
+ if(!window.jspdf)return note('The PDF library did not load. Check your connection and reload.');
+ const{S,sec,T}=LAST,rc=+$('#rc').value||0,rf=+$('#rf').value||0,d=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),q=(x,k=3)=>isFinite(x)?x.toFixed(k):'-';
+ d.setFontSize(15).text('Earthwork Calculation Statement',14,14);
+ d.setFontSize(9).text(`Project: ${$('#proj').value||'-'}     Date: ${new Date().toLocaleDateString()}`,14,20);
+ d.text(`Formation width ${S.B} m | Cut slope ${S.p}:1 | Fill slope ${S.s}:1 | Mode: ${S.mode==='textbook'?'Textbook':'Strict'} | Method: average end area`,14,25);
+ d.autoTable({startY:29,styles:{fontSize:8,halign:'right'},headStyles:{fillColor:[11,92,171]},footStyles:{fillColor:[230,236,242],textColor:20},
+  head:[['Chainage (m)','Cut d','Fill d','r','Section','Ac (m2)','Af (m2)','Mean Ac','Mean Af','L (m)','Cut qty (m3)','Fill qty (m3)']],
+  body:sec.map((c,i)=>[q(c.ch),c.d>0?q(c.d,2):'-',c.d<0?q(-c.d,2):'-',q(c.r,2),c.tr?'Transition':TN[c.t],c.Ac?q(c.Ac):'-',c.Af?q(c.Af):'-',i&&c.qc?q(c.mc):'-',i&&c.qf?q(c.mf):'-',i?q(c.L):'-',i&&c.qc?q(c.qc,2):'-',i&&c.qf?q(c.qf,2):'-']),
+  foot:[['Total','','','','','','','','','',q(T.c,2),q(T.f,2)]]});
+ let y=d.lastAutoTable.finalY+8;if(y>150){d.addPage();y=20}
+ d.setFontSize(10).text(`Total cut: ${q(T.c,2)} m3     Total fill: ${q(T.f,2)} m3     ${T.f>=T.c?'Net fill':'Net cut'}: ${q(Math.abs(T.f-T.c),2)} m3`,14,y);
+ d.text(`Estimated amount (cut rate ${rc}, fill rate ${rf}): ${q(T.c*rc+T.f*rf,2)}`,14,y+6);
+ y+=30;if(y>185){d.addPage();y=30}
+ ['Prepared by','Checked by','Approved by'].forEach((l,k)=>{const x=14+k*92;d.line(x,y,x+80,y);d.setFontSize(9).text(l,x,y+5);d.text('Name / Signature / Date',x,y+10)});
+ const pc=d.getNumberOfPages();for(let i=1;i<=pc;i++){d.setPage(i);d.setFontSize(8).text(`Page ${i} of ${pc}`,283,204,{align:'right'})}
+ save('earthwork_statement.pdf',d.output('arraybuffer'));note('PDF statement ready.')}
+$('#rows').addEventListener('input',e=>{const t=e.target,i=t.dataset.i;if(i==null)return;rows[i][t.dataset.k]=t.dataset.k==='part'?+t.value:t.value;calc()});
+$('#rows').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!=null){rows.splice(+i,1);renderRows();calc()}});
+$('#set').addEventListener('input',()=>{renderRows();calc()});
+$('#add').onclick=()=>{const l=rows[rows.length-1];rows.push(mk(l&&!isNaN(+l.ch)&&l.ch!==''?+l.ch+30:0,'','',l?l.sv:10));renderRows();calc()};
+$('#test').onclick=loadTest;
+$('#clr').onclick=()=>{rows=[mk('','','',''),mk('','','','')];renderRows();show([],[]);$('#out').innerHTML='';$('#ex').style.display='none';LAST=null};
+$('#xb').onclick=()=>LAST&&xl();$('#pb').onclick=()=>LAST&&pdf();
+/* ---- charts, L-section, cross-section, project file ---- */
+let XI=0;
+const card=(t,b,n)=>`<section class="card"><h2>${t}</h2>${b}${n?`<p class="h">${n}</p>`:''}</section>`;
+const svg=(W,H,b)=>`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" style="font-size:11px;fill:var(--mu)">${b}</svg>`;
+const ticks=(a,b,n=5)=>Array.from({length:n+1},(_,i)=>a+(b-a)*i/n);
+const xticks=sec=>{const a=sec.map(c=>c.ch);return a.length<=10?a:ticks(a[0],a[a.length-1],8)};
+const legend=(m,it)=>it.map(([t,c],i)=>`<text x="${m.l+i*150}" y="14" fill="var(--${c})">● ${t}</text>`).join('');
+function frame(o){
+ const m={l:60,r:14,t:26,b:46},W=700,H=o.H||270,rg=Math.abs(o.y1-o.y0),dp=rg<10?2:rg<100?1:0;
+ const X=v=>m.l+(v-o.x0)/((o.x1-o.x0)||1)*(W-m.l-m.r),Y=v=>H-m.b-(v-o.y0)/(rg||1)*(H-m.t-m.b);
+ let g='';
+ ticks(o.y0,o.y1).forEach(v=>g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--bd)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v.toFixed(dp)}</text>`);
+ o.xt.forEach(v=>g+=`<line x1="${X(v)}" x2="${X(v)}" y1="${H-m.b}" y2="${H-m.b+4}" stroke="var(--mu)"/><text x="${X(v)}" y="${H-m.b+16}" text-anchor="middle">${+v.toFixed(1)}</text>`);
+ g+=`<text x="${(m.l+W-m.r)/2}" y="${H-6}" text-anchor="middle" style="font-weight:600">${o.xl}</text><text transform="translate(13 ${(m.t+H-m.b)/2}) rotate(-90)" text-anchor="middle" style="font-weight:600">${o.yl}</text>`;
+ if(o.y0<0&&o.y1>0)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--mu)"/>`;
+ return{X,Y,g,m,W,H}}
+const trl=(F,sec)=>sec.filter(c=>c.tr).map(c=>`<line x1="${F.X(c.ch)}" x2="${F.X(c.ch)}" y1="${F.m.t}" y2="${F.H-F.m.b}" stroke="var(--mu)" stroke-dasharray="4 3"/>`).join('');
+function qchart(sec){
+ const sg=sec.slice(1),ym=Math.max(1,...sg.map(c=>Math.max(c.qc,c.qf)))*1.15,F=frame({x0:sec[0].ch,x1:sec[sec.length-1].ch,y0:0,y1:ym,xl:'Chainage (m)',yl:'Earthwork quantity (m³)',xt:xticks(sec)});
+ let b='';
+ sec.forEach((c,i)=>{if(!i)return;const a=sec[i-1],both=c.qc>0&&c.qf>0,x1=F.X(a.ch),w=F.X(c.ch)-x1;
+  [['qc','cut','Cut',0],['qf','fill','Fill',1]].forEach(([k,col,lb,j])=>{const v=c[k];if(!v)return;
+   const bw=w*(both?.44:.88),bx=x1+w*.06+(both&&j?w*.44:0);
+   b+=`<rect x="${bx}" y="${F.Y(v)}" width="${bw}" height="${F.Y(0)-F.Y(v)}" fill="var(--${col})" opacity=".8"><title>${lb}, ch ${f3(a.ch)} to ${f3(c.ch)} m: ${f3(v,2)} m³</title></rect><text x="${bx+bw/2}" y="${F.Y(v)-3}" text-anchor="middle" style="fill:var(--tx)">${v.toFixed(1)}</text>`})});
+ return svg(F.W,F.H,F.g+trl(F,sec)+b+legend(F.m,[['Cut volume','cut'],['Fill volume','fill']]))}
+function mchart(sec){
+ let cc=0,cf=0;const P=sec.map((c,i)=>{if(i){cc+=c.qc;cf+=c.qf}return{c:cc,f:cf,m:cc-cf,ch:c.ch}});
+ const all=P.flatMap(p=>[p.c,p.f,p.m]),lo=Math.min(0,...all),hi=Math.max(1,...all),pd=(hi-lo)*.08,
+ F=frame({x0:sec[0].ch,x1:sec[sec.length-1].ch,y0:lo<0?lo-pd:0,y1:hi+pd,xl:'Chainage (m)',yl:'Cumulative quantity (m³)',xt:xticks(sec)});
+ const ln=(k,col,dash)=>`<polyline fill="none" stroke="var(--${col})" stroke-width="2"${dash?' stroke-dasharray="6 3"':''} points="${P.map(p=>F.X(p.ch).toFixed(1)+','+F.Y(p[k]).toFixed(1)).join(' ')}"/>`+P.map(p=>`<circle cx="${F.X(p.ch).toFixed(1)}" cy="${F.Y(p[k]).toFixed(1)}" r="3" fill="var(--${col})"><title>Ch ${f3(p.ch)}: ${f3(p[k],2)} m³</title></circle>`).join('');
+ return svg(F.W,F.H,F.g+trl(F,sec)+ln('c','cut')+ln('f','fill')+ln('m','ac',1)+legend(F.m,[['Cumulative cut','cut'],['Cumulative fill','fill'],['Mass haul (cut − fill)','ac']]))}
+function lsec(sec,S){
+ const lv=S.im==='level',N=sec.map(c=>c.fl+c.d),Fm=sec.map(c=>c.fl),all=[...N,...Fm],lo=Math.min(...all),hi=Math.max(...all),pd=Math.max((hi-lo)*.15,.1);
+ const F=frame({x0:sec[0].ch,x1:sec[sec.length-1].ch,y0:lo-pd,y1:hi+pd,xl:'Chainage (m)',yl:lv?'Level (m)':'Level relative to formation (m)',xt:xticks(sec)});
+ const pt=(a,i)=>F.X(a).toFixed(1)+','+F.Y(i).toFixed(1);
+ let g=F.g+trl(F,sec);
+ for(let i=1;i<sec.length;i++){const a=sec[i-1],c=sec[i];
+  g+=`<polygon points="${pt(a.ch,N[i-1])} ${pt(c.ch,N[i])} ${pt(c.ch,Fm[i])} ${pt(a.ch,Fm[i-1])}" fill="var(--${a.d+c.d>0?'cut':'fill'})" opacity=".3"/>`}
+ const pl=(A,col,w,dash)=>`<polyline fill="none" stroke="var(--${col})" stroke-width="${w}"${dash?' stroke-dasharray="5 3"':''} points="${sec.map((c,i)=>pt(c.ch,A[i])).join(' ')}"/>`;
+ g+=pl(Fm,'tx',2.5)+pl(N,'mu',2,1)+sec.map((c,i)=>`<circle cx="${F.X(c.ch).toFixed(1)}" cy="${F.Y(N[i]).toFixed(1)}" r="3" fill="var(--mu)"><title>Ch ${f3(c.ch)}: ground ${f3(N[i])}, formation ${f3(Fm[i])}</title></circle>`).join('');
+ return svg(F.W,F.H,g+legend(F.m,[['Formation','tx'],['Natural ground','mu'],['Cut','cut'],['Fill','fill']]))}
+function dl(c,b,S){const{d,r}=c,p=S.p,s=S.s;
+ return{up:d+b/r>=0?{t:'cut',x:r*(p*d+b)/(r-p)}:{t:'fill',x:r*(b-s*d)/(r+s)},
+  dn:d-b/r>=0?{t:'cut',x:r*(p*d+b)/(r+p)}:{t:'fill',x:r*(b-s*d)/(r-s)}}}
+function extra(sec,S,b){
+ XI=Math.min(XI,sec.length-1);
+ const rw=sec.map(c=>{const D=dl(c,b,S);return `<tr${c.tr?' class="tr"':''}><td>${f3(c.ch)}</td><td>${f3(D.dn.x,2)}</td><td>${D.dn.t}</td><td>${f3(D.up.x,2)}</td><td>${D.up.t}</td></tr>`}).join('');
+ return card('Earthwork quantity by chainage',qchart(sec),'Bars show the cut and fill volume of each segment between consecutive chainages. Dashed vertical lines mark transition points. Hover or tap a bar for its value.')+
+ card('Cumulative quantity and mass-haul diagram',mchart(sec),'A rising mass-haul line means net cut so far, a falling line means net fill. Where the line crosses zero the cut and fill balance.')+
+ card('Longitudinal section (L-section)',lsec(sec,S),S.im==='level'?'Natural ground and formation from your NSL and FSL. Vertical scale is exaggerated.':'Depth input: the formation is drawn as the zero reference and the ground is formation + d. Use NSL and FSL input to see real levels. Vertical scale is exaggerated.')+
+ `<section class="card"><h2>Cross-section</h2><label for="xsl">Select chainage (showing <b id="xsl_l"></b>)</label><select id="xsl" style="max-width:280px">${sec.map((c,i)=>`<option value="${i}"${i===XI?' selected':''}>${f3(c.ch)} m${c.tr?' (transition)':''}</option>`).join('')}</select><div id="xsv"></div><p class="h" id="xsi"></p></section>`+
+ `<section class="card"><h2>Setting-out table: daylight offsets from the centre line</h2><div class="sc"><table><thead><tr><th>Chainage (m)</th><th>Downhill offset (m)</th><th>Slope type</th><th>Uphill offset (m)</th><th>Slope type</th></tr></thead><tbody>${rw}</tbody></table></div><p class="h">Ground is assumed to rise toward the uphill side. Offsets are horizontal distances from the centre line to where the side slope meets the ground.</p></section>`}
+function xsec(){
+ if(!LAST)return;const{S,sec,b}=LAST;XI=Math.min(XI,sec.length-1);
+ const c=sec[XI],D=dl(c,b,S),{d,r}=c,W=700,H=270,xu=D.up.x,xd=-D.dn.x,yu=d+xu/r,yd=d+xd/r;
+ const ext=Math.max(xu,-xd,b)+1,yt=Math.max(yu,yd,.4),yb=Math.min(yu,yd,-.4),sc=Math.min((W-40)/(2*ext),(H-60)/(yt-yb)),ox=W/2,oy=30+(H-60-(yt-yb)*sc)/2+yt*sc;
+ const X=v=>ox+v*sc,Y=v=>oy-v*sc,P=a=>a.map(([x,y])=>X(x).toFixed(1)+','+Y(y).toFixed(1)).join(' ');
+ const poly=P([[xd,yd],[-b,0],[b,0],[xu,yu]]);
+ $('#xsl_l').textContent=f3(c.ch)+' m'+(c.tr?' (transition)':'');
+ $('#xsv').innerHTML=svg(W,H,`<defs><clipPath id="cu"><rect x="0" y="0" width="${W}" height="${oy}"/></clipPath><clipPath id="fi"><rect x="0" y="${oy}" width="${W}" height="${H-oy}"/></clipPath></defs>`+
+  `<polygon points="${poly}" clip-path="url(#cu)" fill="var(--cut)" opacity=".35"/><polygon points="${poly}" clip-path="url(#fi)" fill="var(--fill)" opacity=".35"/>`+
+  `<polyline points="${P([[xd,yd],[xu,yu]])}" fill="none" stroke="var(--mu)" stroke-width="2" stroke-dasharray="6 3"/>`+
+  `<polyline points="${poly}" fill="none" stroke="var(--tx)" stroke-width="2.5"/>`+
+  `<line x1="${X(0)}" x2="${X(0)}" y1="24" y2="${H-34}" stroke="var(--mu)" stroke-dasharray="3 3"/>`+
+  `<text x="${X(0)}" y="18" text-anchor="middle">CL</text><text x="${X(0)}" y="${Y(0)+15}" text-anchor="middle" style="fill:var(--tx)">B = ${S.B} m</text>`+
+  `<text x="${X(xd)}" y="${Y(yd)-7}" text-anchor="middle" style="fill:var(--tx)">${(-xd).toFixed(2)} m</text><text x="${X(xu)}" y="${Y(yu)-7}" text-anchor="middle" style="fill:var(--tx)">${xu.toFixed(2)} m</text>`+
+  `<text x="10" y="${H-8}">Downhill</text><text x="${W-10}" y="${H-8}" text-anchor="end">Uphill</text>`+
+  legend({l:60},[['Cut','cut'],['Fill','fill'],['Natural ground','mu']]).replace(/y="14"/g,'y="H"').replace(/y="H"/g,`y="${H-8}"`).replace(/x="(\d+)"/g,(m,v)=>`x="${+v+W/2-190}"`));
+ $('#xsi').innerHTML=`<b>${c.tr?'Transition':TN[c.t]}</b>, d = ${f3(d)} m (${d>0?'cut':d<0?'fill':'zero'}), r = ${f3(r,2)}. Uphill: ${D.up.t} slope meets ground at ${f3(xu,2)} m, ${f3(Math.abs(yu),2)} m ${yu>=0?'above':'below'} formation. Downhill: ${D.dn.t} slope meets ground at ${f3(-xd,2)} m, ${f3(Math.abs(yd),2)} m ${yd>=0?'above':'below'} formation. Ac = ${f3(c.Ac)} m², Af = ${f3(c.Af)} m². The drawing uses true geometry, so a Textbook full section may show a small fill or cut part.`}
+$('#out').addEventListener('change',e=>{if(e.target.id==='xsl'){XI=+e.target.value;xsec()}});
+const IDS=['proj','B','p','s','mode','im','rc','rf'];
+$('#sv').onclick=()=>save('earthwork_project.json',JSON.stringify({v:1,set:Object.fromEntries(IDS.map(k=>[k,$('#'+k).value])),rows},null,1));
+$('#ld').onclick=()=>$('#lf').click();
+$('#lf').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);IDS.forEach(k=>{if(j.set&&j.set[k]!=null)$('#'+k).value=j.set[k]});rows=(j.rows||[]).map(o=>({...mk('','','',''),...o}));renderRows();calc()}catch(x){show(['Could not read that project file.'],[])}});e.target.value=''};
+loadTest();
+</script></body></html>
