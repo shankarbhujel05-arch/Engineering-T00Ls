@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engineering Tools | Shankar</title>
+    <title>Engineering Tools | Shankar Bhujel</title>
 
     <style>
         :root {
-            --primary: #1e3a5f;
-            --accent: #2878b5;
-            --background: #f4f6f9;
+            --primary: #0f2942;
+            --accent: #d97706; /* Safety Amber/Orange */
+            --accent-blue: #1d4ed8;
+            --background: #f8fafc;
             --surface: #ffffff;
-            --text: #263445;
-            --muted: #718096;
-            --border: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #cbd5e1;
         }
 
         * {
@@ -21,109 +22,124 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1140px;
             margin: 0 auto;
-            padding: 24px 28px 40px;
-            background: var(--background);
+            padding: 40px 30px 60px;
+            background-color: var(--background);
+            /* Subtle Civil Engineering Grid Background Pattern */
+            background-image: 
+                linear-gradient(to right, rgba(203, 213, 225, 0.25) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(203, 213, 225, 0.25) 1px, transparent 1px);
+            background-size: 40px 40px;
             color: var(--text);
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        /* ---------- Header & Navigation ---------- */
+        /* ---------- Header & Profile Section ---------- */
         header.profile {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 16px;
-            padding: 0 0 18px;
-            margin-bottom: 26px;
-            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            padding: 24px 32px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(15, 41, 66, 0.08);
+            margin-bottom: 35px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
         .profile-info {
             display: flex;
             align-items: center;
-            gap: 13px;
+            gap: 20px;
         }
 
-        .profile-mark {
-            width: 46px;
-            height: 46px;
-            flex-shrink: 0;
+        .profile-photo {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            background: var(--primary);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 10px;
-            font-size: 17px;
             font-weight: bold;
-            letter-spacing: 1px;
+            font-size: 22px;
+            flex-shrink: 0;
         }
 
         .profile h2 {
             margin: 0;
-            font-size: 18px;
+            font-size: 24px;
             color: var(--primary);
-            letter-spacing: -0.3px;
+            letter-spacing: -0.5px;
         }
 
         .profile p {
-            margin: 2px 0 0;
+            margin: 4px 0 0;
             color: var(--muted);
-            font-size: 12px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .nav-link {
-            color: var(--accent);
+            color: #fff;
+            background: var(--primary);
             text-decoration: none;
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 22px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            transition: all 0.2s ease;
             white-space: nowrap;
-            padding: 8px 14px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--surface);
-            transition: background 0.2s, border-color 0.2s;
         }
 
         .nav-link:hover {
-            background: #eaf2f8;
-            border-color: #9bbbd6;
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
         }
 
-        /* ---------- Main Content Area ---------- */
+        /* ---------- Main Content ---------- */
         main {
-            padding: 6px 0 4px;
+            padding: 10px 0;
         }
 
         h1 {
-            margin: 0 0 20px;
+            margin: 0 0 24px;
             color: var(--primary);
-            font-size: 28px;
-            letter-spacing: -0.7px;
+            font-size: 34px;
+            letter-spacing: -1px;
+            border-bottom: 3px solid var(--accent);
+            display: inline-block;
+            padding-bottom: 6px;
         }
 
-        /* Group / Accordion Dropdown Styles */
+        /* ---------- Group Accordions ---------- */
         .tool-group {
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            margin-bottom: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 22px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: border-color 0.2s;
+        }
+
+        .tool-group[open] {
+            border-color: var(--accent-blue);
         }
 
         .tool-group summary {
-            padding: 18px 24px;
-            font-size: 17px;
-            font-weight: bold;
+            padding: 22px 28px;
+            font-size: 20px;
+            font-weight: 700;
             color: var(--primary);
             cursor: pointer;
             list-style: none;
@@ -131,6 +147,7 @@
             justify-content: space-between;
             align-items: center;
             user-select: none;
+            background: #f1f5f9;
             transition: background 0.2s;
         }
 
@@ -140,9 +157,9 @@
 
         .tool-group summary::after {
             content: "▼";
-            font-size: 12px;
+            font-size: 16px;
             color: var(--accent);
-            transition: transform 0.2s ease;
+            transition: transform 0.3s ease;
         }
 
         .tool-group[open] summary::after {
@@ -150,17 +167,18 @@
         }
 
         .tool-group summary:hover {
-            background: #f8fafc;
+            background: #e2e8f0;
         }
 
-        /* Tool List Inside Accordion */
+        /* ---------- Tool Grid Layout ---------- */
         ul.tool-list {
             list-style: none;
-            padding: 0 16px 16px 16px;
+            padding: 24px;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            background: var(--surface);
         }
 
         ul.tool-list li a {
@@ -168,63 +186,135 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            min-height: 54px;
-            padding: 14px 20px;
-            background: var(--background);
+            min-height: 75px;
+            padding: 18px 22px;
+            background: #f8fafc;
             color: var(--text);
             text-decoration: none;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 600;
-            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            transition: all 0.25s ease;
         }
 
         ul.tool-list li a::after {
             content: "↗";
             color: var(--accent);
-            font-size: 16px;
+            font-size: 22px;
+            font-weight: bold;
             flex-shrink: 0;
+            transition: transform 0.2s;
         }
 
         ul.tool-list li a:hover,
         ul.tool-list li a:focus-visible {
-            border-color: #9bbbd6;
-            background: var(--surface);
-            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.08);
-            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+            background: #eff6ff;
+            color: var(--accent-blue);
+            box-shadow: 0 6px 16px rgba(29, 78, 216, 0.12);
+            transform: translateY(-3px);
             outline: none;
+        }
+
+        ul.tool-list li a:hover::after {
+            transform: translateX(3px) translateY(-3px);
         }
 
         /* ---------- About Me Section ---------- */
         #about {
-            margin-top: 30px;
-            padding: 20px 24px;
-            background: #eaf0f6;
-            border-radius: 10px;
-            scroll-margin-top: 20px;
+            margin-top: 40px;
+            padding: 30px 35px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
         #about h2 {
-            margin: 0 0 8px;
-            font-size: 14px;
-            letter-spacing: 0.5px;
+            margin: 0 0 12px;
+            font-size: 18px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            color: var(--primary);
+            color: var(--accent);
+            font-weight: 700;
         }
 
         #about p {
             margin: 0;
-            color: #536477;
-            font-size: 13px;
-            line-height: 1.6;
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* ---------- Useful Links Container ---------- */
+        .useful-links-container {
+            margin-top: 40px;
+            padding: 28px 32px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .useful-links-container h3 {
+            margin: 0 0 18px;
+            font-size: 18px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .useful-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+        }
+
+        .useful-link-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .useful-link-card svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--primary);
+            flex-shrink: 0;
+            transition: fill 0.2s;
+        }
+
+        .useful-link-card:hover {
+            border-color: var(--accent-blue);
+            background: #eff6ff;
+            color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.1);
+        }
+
+        .useful-link-card:hover svg {
+            fill: var(--accent-blue);
         }
 
         /* ---------- Footer & Social Links ---------- */
         footer {
-            margin-top: 28px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
+            margin-top: 35px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border);
         }
 
         .social-links {
@@ -232,34 +322,34 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 12px;
-            margin: 10px 0;
+            gap: 16px;
         }
 
         .social-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            gap: 10px;
+            padding: 14px 22px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
             background: var(--surface);
             color: var(--text);
             text-decoration: none;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 600;
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.25s ease;
         }
 
         .social-link svg {
-            width: 18px;
-            height: 18px;
+            width: 22px;
+            height: 22px;
             fill: currentColor;
         }
 
         .social-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
             border-color: currentColor;
         }
 
@@ -269,64 +359,68 @@
         .tiktok:hover { color: #000000; }
         .phone:hover { color: #16A34A; }
 
-        /* ---------- Responsive ---------- */
-        @media (max-width: 600px) {
+        /* ---------- Responsive Design ---------- */
+        @media (max-width: 768px) {
             body {
-                padding: 18px 15px 32px;
+                padding: 20px 15px 40px;
+                background-size: 20px 20px;
             }
 
-            .profile {
-                margin-bottom: 22px;
+            header.profile {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
             }
 
-            .profile-mark {
-                width: 40px;
-                height: 40px;
+            .nav-link {
+                width: 100%;
+                text-align: center;
             }
 
-            .profile h2 {
-                font-size: 16px;
+            ul.tool-list {
+                grid-template-columns: 1fr;
+                padding: 16px;
             }
 
-            h1 {
-                font-size: 24px;
+            .useful-links-grid {
+                grid-template-columns: 1fr;
             }
 
-            ul.tool-list li a {
-                padding: 12px 14px;
-                font-size: 14px;
+            .tool-group summary {
+                font-size: 18px;
+                padding: 18px 20px;
             }
 
-            .social-links { gap: 8px; }
-            .social-link { padding: 8px 12px; font-size: 12px; }
+            #about, .useful-links-container {
+                padding: 22px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Personal Branding Header -->
+    <!-- Personal Branding Header with Photo -->
     <header class="profile">
         <div class="profile-info">
-            <div class="profile-mark">SE</div>
+            <img src="profile.jpg" alt="Shankar Bhujel" class="profile-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="profile-photo" style="display:none;">SB</div>
             <div>
-                <h2>Shankar</h2>
-                <p>Civil Engineer · Engineering Resources</p>
+                <h2>Shankar Bhujel</h2>
+                <p>Civil Engineer · Engineering Resources & Tools</p>
             </div>
         </div>
 
-        <nav class="nav-links">
-            <a class="nav-link" href="#about">About Me ↘</a>
-        </nav>
+        <a class="nav-link" href="#about">About Me ↘</a>
     </header>
 
-    <!-- Main Content Area with Dropdown Groups -->
+    <!-- Main Content Area -->
     <main>
-        <h1>Engineering Tools</h1>
+        <h1>Engineering Tools Dashboard</h1>
 
         <!-- Group 1: Calculators & Quantity Surveying -->
-        <details class="tool-group" open>
-            <summary>Calculators & Quantity Surveying</summary>
+        <details class="tool-group">
+            <summary>📐 Calculators & Quantity Surveying</summary>
             <ul class="tool-list">
                 <li>
                     <a href="tools/RRM CALCULATOR.html">RRM Calculator</a>
@@ -341,8 +435,8 @@
         </details>
 
         <!-- Group 2: Rate Analysis Sections -->
-        <details class="tool-group" open>
-            <summary>Rate Analysis Sections</summary>
+        <details class="tool-group">
+            <summary>🏗️ Rate Analysis Sections</summary>
             <ul class="tool-list">
                 <li>
                     <a href="tools/SECTION 900-EARTHWORKS.html">Section 900 – Earthworks</a>
@@ -354,7 +448,7 @@
                     <a href="tools/SECTION- 1200 SUBBASE, BASE, HARD SHOULDER AND GRAVEL WEARING COURSE.html">Section 1200 – Subbase, Base &amp; Gravel</a>
                 </li>
                 <li>
-                    <a href="tools/SECTION- 1300  BITUMINOUS SURFACE AND  BASE COURSE.html">Section 1300 – Bituminous Surface and Base Course</a>
+                    <a href="tools/SECTION- 1300  BITUMINOUS SURFACE AND  BASE COURSE.html">Section 1300 – Bituminous Surface &amp; Base Course</a>
                 </li>
                 <li>
                     <a href="tools/SECTION 2600-MASONRY FOR STRUCTURES.html">Section 2600 – Masonry</a>
@@ -368,20 +462,43 @@
     <section id="about">
         <h2>About Me</h2>
         <p>
-            I am a Civil Engineer, technology enthusiast, and curious learner
-            passionate about bridging engineering theory with real-world
-            construction practice. I enjoy exploring innovative digital tools
-            to make engineering calculations and construction processes more
-            practical and efficient. Always eager to learn, collaborate, and
-            embrace new opportunities.
+            I am a Civil Engineer, technology enthusiast, and curious learner passionate about bridging engineering theory with real-world construction practice. I enjoy exploring innovative digital tools to make engineering calculations and construction processes more practical, efficient, and precise. Always eager to learn, collaborate, and embrace new professional opportunities.
         </p>
     </section>
 
-    <!-- Footer with Social Media Links -->
+    <!-- Footer Area -->
     <footer>
-        <div class="social-links">
+        <!-- Useful External Links Container -->
+        <div class="useful-links-container">
+            <h3>🔗 Useful Links & Resources</h3>
+            <div class="useful-links-grid">
+                
+                <!-- Link 1: GitHub Repositories -->
+                <a href="https://github.com/shankarbhujel05-arch?tab=repositories" class="useful-link-card" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    <span>GitHub Repositories</span>
+                </a>
+
+                <!-- Link 2: Portfolio -->
+                <a href="https://shankarbhujel05-arch.github.io/" class="useful-link-card" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                    <span>Main Engineering Portfolio</span>
+                </a>
+
+                <!-- Link 3: Google Drive Shared Resources -->
+                <a href="https://drive.google.com" class="useful-link-card" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24"><path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5zm4.86 6.5L9.14 21h13.71l3.43-6H12.57zm1.14-6.5l-3.43 6h12.57l3.43-6H13.71z"/></svg>
+                    <span>Google Drive Documents</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="social-links" style="margin-top: 25px;">
             <a href="tel:+9779844524006" class="social-link phone" title="Call Me">
-                <span>☎ Phone</span>
+                <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                <span>Phone</span>
             </a>
             <a href="https://www.linkedin.com/in/shankar-bhujel-a6103a385/" class="social-link linkedin" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24"><path d="M20.45 2H3.55C2.7 2 2 2.67 2 3.5v17c0 .83.7 1.5 1.55 1.5h16.9c.86 0 1.55-.67 1.55-1.5v-17c0-.83-.69-1.5-1.55-1.5zM8 19H5V9h3v10zM6.5 7.7a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5zM19 19h-3v-4.9c0-1.17-.02-2.68-1.63-2.68-1.63 0-1.87 1.27-1.87 2.6V19h-3V9h2.88v1.37h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.74 2 3.74 4.6V19z"/></svg>
