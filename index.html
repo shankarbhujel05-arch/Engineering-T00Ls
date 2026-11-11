@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,8 +30,8 @@
             line-height: 1.5;
         }
 
-        /* ---------- Compact personal branding ---------- */
-        .profile {
+        /* ---------- Header & Navigation ---------- */
+        header.profile {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -75,55 +75,92 @@
             font-size: 12px;
         }
 
-        .about-link {
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
             color: var(--accent);
             text-decoration: none;
             font-size: 13px;
             font-weight: bold;
             white-space: nowrap;
-            padding: 8px 12px;
+            padding: 8px 14px;
             border: 1px solid var(--border);
             border-radius: 6px;
             background: var(--surface);
             transition: background 0.2s, border-color 0.2s;
         }
 
-        .about-link:hover {
+        .nav-link:hover {
             background: #eaf2f8;
             border-color: #9bbbd6;
         }
 
-        /* ---------- Main tools area (takes the space) ---------- */
+        /* ---------- Main Content Area ---------- */
         main {
             padding: 6px 0 4px;
         }
 
         h1 {
-            margin: 0 0 6px;
+            margin: 0 0 20px;
             color: var(--primary);
             font-size: 28px;
             letter-spacing: -0.7px;
         }
 
-        .section-description {
-            margin: 0 0 22px;
-            color: var(--muted);
-            font-size: 13px;
-            max-width: 620px;
+        /* Group / Accordion Dropdown Styles */
+        .tool-group {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
-        /* Vertical list — one tool per row, full width */
+        .tool-group summary {
+            padding: 18px 24px;
+            font-size: 17px;
+            font-weight: bold;
+            color: var(--primary);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .tool-group summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .tool-group summary::after {
+            content: "▼";
+            font-size: 12px;
+            color: var(--accent);
+            transition: transform 0.2s ease;
+        }
+
+        .tool-group[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .tool-group summary:hover {
+            background: #f8fafc;
+        }
+
+        /* Tool List Inside Accordion */
         ul.tool-list {
             list-style: none;
-            padding: 0;
+            padding: 0 16px 16px 16px;
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-        }
-
-        ul.tool-list li {
-            margin: 0;
+            gap: 10px;
         }
 
         ul.tool-list li a {
@@ -131,90 +168,106 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            min-height: 66px;
-            padding: 20px 24px;
-            background: var(--surface);
+            min-height: 54px;
+            padding: 14px 20px;
+            background: var(--background);
             color: var(--text);
             text-decoration: none;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 15px;
-            font-weight: bold;
-            line-height: 1.35;
+            font-weight: 600;
             transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
         }
 
         ul.tool-list li a::after {
             content: "↗";
             color: var(--accent);
-            font-size: 18px;
+            font-size: 16px;
             flex-shrink: 0;
         }
 
         ul.tool-list li a:hover,
         ul.tool-list li a:focus-visible {
             border-color: #9bbbd6;
-            box-shadow: 0 5px 14px rgba(30, 58, 95, 0.08);
+            background: var(--surface);
+            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.08);
             transform: translateY(-2px);
             outline: none;
         }
 
-        /* ---------- Compact About section ---------- */
+        /* ---------- About Me Section ---------- */
         #about {
             margin-top: 30px;
-            padding: 14px 16px;
+            padding: 20px 24px;
             background: #eaf0f6;
-            border-radius: 8px;
+            border-radius: 10px;
             scroll-margin-top: 20px;
         }
 
         #about h2 {
-            margin: 0 0 6px;
-            font-size: 13px;
-            letter-spacing: 0.4px;
+            margin: 0 0 8px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             color: var(--primary);
         }
 
         #about p {
-            margin: 0 0 6px;
-            max-width: 720px;
+            margin: 0;
             color: #536477;
-            font-size: 12px;
-            line-height: 1.55;
+            font-size: 13px;
+            line-height: 1.6;
         }
 
-        #about p:last-child {
-            margin-bottom: 0;
-        }
-
-        #about .contact {
-            font-size: 12px;
-            color: #536477;
-        }
-
-        #about .contact a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        #about .contact a:hover {
-            text-decoration: underline;
-        }
-
-        /* ---------- Footer ---------- */
+        /* ---------- Footer & Social Links ---------- */
         footer {
-            margin-top: 22px;
-            padding-top: 12px;
+            margin-top: 28px;
+            padding-top: 16px;
             border-top: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 11px;
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
         }
+
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .social-link svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .social-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: currentColor;
+        }
+
+        .linkedin:hover { color: #0A66C2; }
+        .instagram:hover { color: #E1306C; }
+        .facebook:hover { color: #1877F2; }
+        .tiktok:hover { color: #000000; }
+        .phone:hover { color: #16A34A; }
 
         /* ---------- Responsive ---------- */
         @media (max-width: 600px) {
@@ -240,103 +293,80 @@
             }
 
             ul.tool-list li a {
-                min-height: 60px;
-                padding: 16px 16px;
+                padding: 12px 14px;
                 font-size: 14px;
             }
+
+            .social-links { gap: 8px; }
+            .social-link { padding: 8px 12px; font-size: 12px; }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Compact personal branding -->
+    <!-- Personal Branding Header -->
     <header class="profile">
         <div class="profile-info">
             <div class="profile-mark">SE</div>
-
             <div>
                 <h2>Shankar</h2>
                 <p>Civil Engineer · Engineering Resources</p>
             </div>
         </div>
 
-        <a class="about-link" href="#about">About Me ↘</a>
+        <nav class="nav-links">
+            <a class="nav-link" href="#about">About Me ↘</a>
+        </nav>
     </header>
 
-    <!-- Main engineering tools (primary area) -->
+    <!-- Main Content Area with Dropdown Groups -->
     <main>
         <h1>Engineering Tools</h1>
 
-        
+        <!-- Group 1: Calculators & Quantity Surveying -->
+        <details class="tool-group" open>
+            <summary>Calculators & Quantity Surveying</summary>
+            <ul class="tool-list">
+                <li>
+                    <a href="tools/RRM CALCULATOR.html">RRM Calculator</a>
+                </li>
+                <li>
+                    <a href="tools/Earthwork Calculator.html">Earthwork Calculator</a>
+                </li>
+                <li>
+                    <a href="tools/Digital Levelling Calculator.html">Digital Levelling Calculator</a>
+                </li>
+            </ul>
+        </details>
 
-        <ul class="tool-list">
-            <!--
-                HOW TO ADD A NEW TOOL:
-                1. Copy one <li> block below.
-                2. Change the href to your HTML file path.
-                3. Change the text to your tool name.
-            -->
+        <!-- Group 2: Rate Analysis Sections -->
+        <details class="tool-group" open>
+            <summary>Rate Analysis Sections</summary>
+            <ul class="tool-list">
+                <li>
+                    <a href="tools/SECTION 900-EARTHWORKS.html">Section 900 – Earthworks</a>
+                </li>
+                <li>
+                    <a href="tools/SECTION 1000-SUBGRADE.html">Section 1000 – Subgrade</a>
+                </li>
+                <li>
+                    <a href="tools/SECTION- 1200 SUBBASE, BASE, HARD SHOULDER AND GRAVEL WEARING COURSE.html">Section 1200 – Subbase, Base &amp; Gravel</a>
+                </li>
+                <li>
+                    <a href="tools/SECTION- 1300  BITUMINOUS SURFACE AND  BASE COURSE.html">Section 1300 – Bituminous Surface and Base Course</a>
+                </li>
+                <li>
+                    <a href="tools/SECTION 2600-MASONRY FOR STRUCTURES.html">Section 2600 – Masonry</a>
+                </li>
+            </ul>
+        </details>
 
-            <li>
-                <a href="tools/RRM CALCULATOR.html">
-                    RRM Calculator
-                </a>
-            </li>
-            <li>
-                <a href="tools/Earthwork Calculator.html">
-                    Earthwork Calculator
-                </a>
-            </li>
-            
-
-            <li>
-                <a href="tools/Digital Levelling Calculator.html">
-                    Digital Levelling Calculator
-                </a>
-            </li>
-
-            <li>
-                <a href="tools/SECTION 900-EARTHWORKS.html">
-                    Rate Analysis: Section 900 – Earthworks
-                </a>
-            </li>
-
-            <li>
-                <a href="tools/SECTION 1000-SUBGRADE.html">
-                    Rate Analysis: Section 1000 – Subgrade
-                </a>
-            </li>
-
-            <li>
-                <a href="tools/SECTION- 1200 SUBBASE, BASE, HARD SHOULDER AND GRAVEL WEARING COURSE.html">
-                    Rate Analysis: Section 1200 – Subbase, Base &amp; Gravel
-                </a>
-            </li>
-
-             <li>
-                <a href="tools/SECTION- 1300  BITUMINOUS SURFACE AND  BASE COURSE.html">
-                    Rate Analysis: SECTION- 1300  BITUMINOUS SURFACE AND  BASE COURSE
-                </a>
-            </li>
-
-            <li>
-                <a href="tools/SECTION 2600-MASONRY FOR STRUCTURES.html">
-                    Rate Analysis: Section 2600 – Masonry
-                </a>
-            </li>
-
-
-
-            <!-- ADD YOUR NEW TOOLS BELOW THIS LINE -->
-
-        </ul>
     </main>
 
-    <!-- Compact About Me section -->
+    <!-- About Me Section -->
     <section id="about">
         <h2>About Me</h2>
-
         <p>
             I am a Civil Engineer, technology enthusiast, and curious learner
             passionate about bridging engineering theory with real-world
@@ -345,101 +375,31 @@
             practical and efficient. Always eager to learn, collaborate, and
             embrace new opportunities.
         </p>
-
     </section>
 
+    <!-- Footer with Social Media Links -->
     <footer>
-      
-<!-- SOCIAL & CONTACT LINKS -->
-<div class="social-links">
-
-    <!-- Phone -->
-    <a href="tel:+9779844524006" class="social-link phone" title="Call Me">
-        <i class="icon">☎</i>
-        <span>Phone</span>
-    </a>
-
-    <!-- LinkedIn -->
-    <a href="https://www.linkedin.com/in/shankar-bhujel-a6103a385/"
-       class="social-link linkedin" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24"><path d="M20.45 2H3.55C2.7 2 2 2.67 2 3.5v17c0 .83.7 1.5 1.55 1.5h16.9c.86 0 1.55-.67 1.55-1.5v-17c0-.83-.69-1.5-1.55-1.5zM8 19H5V9h3v10zM6.5 7.7a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5zM19 19h-3v-4.9c0-1.17-.02-2.68-1.63-2.68-1.63 0-1.87 1.27-1.87 2.6V19h-3V9h2.88v1.37h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.74 2 3.74 4.6V19z"/></svg>
-        <span>LinkedIn</span>
-    </a>
-
-    <!-- Instagram -->
-    <a href="https://www.instagram.com/shankarbhujel391/"
-       class="social-link instagram" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.5-3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>
-        <span>Instagram</span>
-    </a>
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/shankarbhujel1999/about"
-       class="social-link facebook" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.6V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.7v8h3.5z"/></svg>
-        <span>Facebook</span>
-    </a>
-
-    <!-- TikTok -->
-    <a href="https://www.tiktok.com/@shankar.bhujel57"
-       class="social-link tiktok" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24"><path d="M19.6 6.2a5.4 5.4 0 0 1-3.3-4.7h-3.5v14.1a3.1 3.1 0 1 1-3.1-3.1c.3 0 .7 0 1 .1V9a6.6 6.6 0 1 0 5.6 6.5V8.3a8.8 8.8 0 0 0 5 1.6V6.4c-.6 0-1.2-.1-1.7-.2z"/></svg>
-        <span>TikTok</span>
-    </a>
-
-</div>
-
-<style>
-.social-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-    margin: 25px 0;
-}
-
-.social-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 11px 17px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    background: #ffffff;
-    color: #334155;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.25s ease;
-}
-
-.social-link svg {
-    width: 19px;
-    height: 19px;
-    fill: currentColor;
-}
-
-.social-link:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-    border-color: currentColor;
-}
-
-.linkedin:hover { color: #0A66C2; }
-.instagram:hover { color: #E1306C; }
-.facebook:hover { color: #1877F2; }
-.tiktok:hover { color: #000000; }
-.phone:hover { color: #16A34A; }
-
-@media (max-width: 600px) {
-    .social-links { gap: 8px; }
-    .social-link { padding: 10px 12px; }
-}
-</style>
-
-
-      
+        <div class="social-links">
+            <a href="tel:+9779844524006" class="social-link phone" title="Call Me">
+                <span>☎ Phone</span>
+            </a>
+            <a href="https://www.linkedin.com/in/shankar-bhujel-a6103a385/" class="social-link linkedin" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M20.45 2H3.55C2.7 2 2 2.67 2 3.5v17c0 .83.7 1.5 1.55 1.5h16.9c.86 0 1.55-.67 1.55-1.5v-17c0-.83-.69-1.5-1.55-1.5zM8 19H5V9h3v10zM6.5 7.7a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5zM19 19h-3v-4.9c0-1.17-.02-2.68-1.63-2.68-1.63 0-1.87 1.27-1.87 2.6V19h-3V9h2.88v1.37h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.74 2 3.74 4.6V19z"/></svg>
+                <span>LinkedIn</span>
+            </a>
+            <a href="https://www.instagram.com/shankarbhujel391/" class="social-link instagram" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.5-3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>
+                <span>Instagram</span>
+            </a>
+            <a href="https://www.facebook.com/shankarbhujel1999/about" class="social-link facebook" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.6V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.7v8h3.5z"/></svg>
+                <span>Facebook</span>
+            </a>
+            <a href="https://www.tiktok.com/@shankar.bhujel57" class="social-link tiktok" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M19.6 6.2a5.4 5.4 0 0 1-3.3-4.7h-3.5v14.1a3.1 3.1 0 1 1-3.1-3.1c.3 0 .7 0 1 .1V9a6.6 6.6 0 1 0 5.6 6.5V8.3a8.8 8.8 0 0 0 5 1.6V6.4c-.6 0-1.2-.1-1.7-.2z"/></svg>
+                <span>TikTok</span>
+            </a>
+        </div>
     </footer>
 
 </body>
